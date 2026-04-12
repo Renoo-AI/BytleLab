@@ -43,6 +43,7 @@
     background: var(--bg-main);
     min-height: 100vh;
     margin: 0;
+    overflow-x: hidden;
   }
 
   button, input {
@@ -149,9 +150,54 @@
     animation: shine 3s infinite;
   }
 
+  /* Global Background Decorations - Applied once to all auth pages */
+  .auth-page-bg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-page-bg::before {
+    content: "";
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, rgba(76, 64, 223, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+  }
+
+  .auth-page-bg::after {
+    content: "";
+    position: absolute;
+    bottom: -10%;
+    right: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, rgba(153, 149, 255, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+  }
+
+  /* Responsive container adjustments */
+  @media (max-width: 640px) {
+    .container {
+      padding: 12px;
+    }
+  }
+
   @media (min-width: 768px) {
     .container {
       max-width: 480px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      max-width: 560px;
     }
   }
 }

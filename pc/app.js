@@ -35,20 +35,17 @@ const init = () => {
   // 2. Initialize Router
   const router = new Router(routes, 'main-content');
   
-  // 3. Handle Initial Navigation
-  const isPC = window.innerWidth >= 768;
-  if (window.location.pathname === '/' && !state.isAuthenticated) {
-    router.navigate('/splash');
-    setTimeout(() => {
-      if (!state.isAuthenticated) {
-        router.navigate('/qr-login');
-      } else {
-        router.navigate('/');
-      }
-    }, 2500);
-  } else {
-    router.init();
-  }
+  // 3. Handle Initial Navigation - Show splash first with fixed timeout
+  router.navigate('/splash');
+  
+  // Fixed time-based splash transition (1.5 seconds max, no async blocking)
+  setTimeout(() => {
+    if (!state.isAuthenticated) {
+      router.navigate('/qr-login');
+    } else {
+      router.navigate('/');
+    }
+  }, 1500);
 
   // 4. Initialize Auth
   auth.init((userData) => {

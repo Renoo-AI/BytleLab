@@ -1,11 +1,7 @@
 export class Splash {
   render() {
     return `
-      <div class="container page animate-fade-in flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-surface to-surface-container-lowest">
-        <!-- Background Decorative Glows -->
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] animate-pulse"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-container/5 rounded-full blur-[120px] animate-pulse" style="animation-delay: 1s"></div>
-
+      <div class="auth-page-bg container page animate-fade-in flex flex-col items-center justify-center overflow-hidden">
         <!-- Central Content Canvas -->
         <div class="relative z-10 flex flex-col items-center justify-center px-8 text-center w-full">
           <!-- The 'Bolt' Mascot Presentation -->
@@ -33,24 +29,9 @@ export class Splash {
             <div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden p-[1px]">
               <div class="h-full w-1/3 bg-gradient-to-r from-primary to-primary-container rounded-full shadow-[0_0_12px_rgba(76,64,223,0.5)] animate-pulse"></div>
             </div>
-            <p class="text-[10px] font-black text-primary uppercase tracking-widest animate-pulse">Initializing Security Protocols...</p>
+            <p class="text-[10px] font-black text-primary uppercase tracking-widest animate-pulse">Initializing...</p>
           </div>
         </div>
-
-        <!-- Subtle Editorial Footer -->
-        <footer class="absolute bottom-12 left-0 w-full flex flex-col items-center gap-4 px-6 opacity-30">
-          <div class="flex items-center gap-6">
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-sm">verified_user</span>
-              <span class="text-[9px] font-bold tracking-widest uppercase">Secure Env</span>
-            </div>
-            <div class="w-1 h-1 bg-on-surface rounded-full"></div>
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-sm">encrypted</span>
-              <span class="text-[9px] font-bold tracking-widest uppercase">Encrypted Path</span>
-            </div>
-          </div>
-        </footer>
       </div>
     `;
   }

@@ -1,11 +1,7 @@
 export class Signup {
   render() {
     return `
-      <div class="container page animate-fade-in flex flex-col items-center justify-center relative overflow-hidden">
-        <!-- Background Decorative Glows -->
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-container/5 rounded-full blur-[120px] pointer-events-none"></div>
-
+      <div class="auth-page-bg container page animate-fade-in flex flex-col items-center justify-center relative overflow-hidden">
         <!-- Top Bar Component -->
         <header class="w-full flex items-center justify-between py-6 absolute top-0 z-10">
           <button onclick="window.history.back()" class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-variant transition-colors active:scale-90">
@@ -13,7 +9,7 @@ export class Signup {
           </button>
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1">shield_with_heart</span>
-            <span class="text-xl font-extrabold tracking-tight bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent">ByteLab</span>
+            <span class="text-xl font-extrabold tracking-tight bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent">ByteLearn</span>
           </div>
           <div class="w-12"></div>
         </header>

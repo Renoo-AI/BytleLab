@@ -1,16 +1,12 @@
 export class Login {
   render() {
     return `
-      <div class="container animate-fade-in flex flex-col items-center min-h-screen relative overflow-hidden">
-        <!-- Background Decorative Glows -->
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-container/5 rounded-full blur-[120px] pointer-events-none"></div>
-
+      <div class="auth-page-bg container animate-fade-in flex flex-col items-center min-h-screen relative overflow-hidden">
         <!-- Top App Bar -->
         <header class="w-full top-0 flex items-center justify-center px-6 py-8 relative z-10">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-3xl text-primary" style="font-variation-settings: 'FILL' 1">shield_with_heart</span>
-            <span class="text-2xl font-bold bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent tracking-tight leading-relaxed font-headline">ByteLab</span>
+            <span class="text-2xl font-bold bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent tracking-tight leading-relaxed font-headline">ByteLearn</span>
           </div>
         </header>
 

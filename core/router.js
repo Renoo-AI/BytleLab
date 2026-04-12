@@ -9,6 +9,7 @@ export class Router {
     this.containerId = containerId;
     this.container = document.getElementById(containerId);
     this.currentPath = null;
+    this.isSplashHandled = false;
 
     window.addEventListener('popstate', () => this.handleRoute());
     
@@ -44,27 +45,29 @@ export class Router {
 
     // 1. Platform-Specific Route Protection
     if (isPC) {
-      // PC: Block mobile-only auth pages
+      // PC: Block mobile-only auth pages - redirect to QR login
       if (path === '/login' || path === '/signup') {
-        this.navigate('/qr-login');
+        window.history.replaceState({}, '', '/qr-login');
+        await this.handleRoute();
         return;
       }
     } else {
-      // Mobile: Block PC-only QR login page
+      // Mobile: Block PC-only QR login page - redirect to login
       if (path === '/qr-login') {
-        this.navigate('/login');
+        window.history.replaceState({}, '', '/login');
+        await this.handleRoute();
         return;
       }
     }
 
-    const publicRoutes = ['/login', '/signup', '/splash', '/qr-login'];
+    const publicRoutes = ['/splash', '/login', '/signup', '/qr-login'];
     const isPublic = publicRoutes.includes(path);
 
-    // 2. Authentication Guard
+    // 2. Authentication Guard - only for non-public routes
     if (!state.isAuthenticated && !isPublic) {
       const defaultLogin = isPC ? '/qr-login' : '/login';
       window.history.replaceState({}, '', defaultLogin);
-      this.handleRoute();
+      await this.handleRoute();
       return;
     }
 
@@ -117,5 +120,21 @@ export class Router {
 
   init() {
     this.handleRoute();
+  }
+
+  // Handle splash screen transition with fixed timeout
+  handleSplashTransition(router, isPC) {
+    if (this.isSplashHandled) return;
+    this.isSplashHandled = true;
+    
+    // Fixed 1.5 second splash duration - no async dependencies
+    setTimeout(() => {
+      const { state } = window;
+      if (!state || !state.isAuthenticated) {
+        router.navigate(isPC ? '/qr-login' : '/login');
+      } else {
+        router.navigate('/');
+      }
+    }, 1500);
   }
 }
