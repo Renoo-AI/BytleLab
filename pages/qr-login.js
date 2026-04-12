@@ -1,3 +1,6 @@
+import { firestore } from '../core/firebase.js';
+import qrcode from 'qrcode-generator';
+
 export class QRLogin {
   constructor() {
     this.sessionId = Math.random().toString(36).substring(2, 15);
@@ -72,7 +75,7 @@ export class QRLogin {
     setTimeout(() => this.onMount(), 100);
 
     return `
-      <div class="auth-page-bg container animate-fade-in flex flex-col items-center min-h-screen overflow-hidden relative">
+      <div class="container animate-fade-in flex flex-col items-center min-h-screen overflow-hidden relative">
         <!-- Top App Bar -->
         <header class="w-full top-0 flex items-center justify-center px-6 py-8 relative z-10">
           <div class="flex items-center gap-2">

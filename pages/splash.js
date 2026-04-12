@@ -1,7 +1,7 @@
 export class Splash {
   render() {
     return `
-      <div class="auth-page-bg container page animate-fade-in flex flex-col items-center justify-center overflow-hidden">
+      <div class="container page animate-fade-in flex flex-col items-center justify-center overflow-hidden">
         <!-- Central Content Canvas -->
         <div class="relative z-10 flex flex-col items-center justify-center px-8 text-center w-full">
           <!-- The 'Bolt' Mascot Presentation -->

@@ -38,21 +38,23 @@ const init = () => {
   // 3. Handle Initial Navigation - Show splash first with fixed timeout
   router.navigate('/splash');
   
-  // Fixed time-based splash transition (1.5 seconds max, no async blocking)
-  setTimeout(() => {
-    if (!state.isAuthenticated) {
-      router.navigate('/qr-login');
-    } else {
-      router.navigate('/');
-    }
-  }, 1500);
-
   // 4. Initialize Auth
   auth.init((userData) => {
-    if (userData && window.location.pathname === '/qr-login') {
+    if (userData && (window.location.pathname === '/qr-login' || window.location.pathname === '/splash')) {
       router.navigate('/');
     }
   });
+
+  // Fixed time-based splash transition (1.5 seconds max, no async blocking)
+  setTimeout(() => {
+    if (window.location.pathname === '/splash') {
+      if (!state.isAuthenticated) {
+        router.navigate('/qr-login');
+      } else {
+        router.navigate('/');
+      }
+    }
+  }, 1500);
 
   // 5. Global App Methods
   window.app = {
@@ -100,14 +102,14 @@ if (document.readyState === 'loading') {
 function updateGlobalUI() {
   const avatarContainer = document.getElementById('user-avatar-container');
   const statsContainer = document.getElementById('user-stats');
-  const bottomNav = document.querySelector('nav');
+  const pcNav = document.getElementById('pc-nav');
   const topBar = document.querySelector('header');
 
   // Hide/Show Shell UI based on route
   const hiddenOn = ['/splash', '/login', '/signup', '/qr-login'];
   const isHidden = hiddenOn.includes(window.location.pathname);
   
-  if (bottomNav) bottomNav.style.display = isHidden ? 'none' : 'flex';
+  if (pcNav) pcNav.style.display = isHidden ? 'none' : 'flex';
   if (topBar) topBar.style.display = isHidden ? 'none' : 'flex';
 
   if (avatarContainer && state.user) {

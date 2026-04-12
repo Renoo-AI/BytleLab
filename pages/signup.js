@@ -1,7 +1,7 @@
 export class Signup {
   render() {
     return `
-      <div class="auth-page-bg container page animate-fade-in flex flex-col items-center justify-center relative overflow-hidden">
+      <div class="container page animate-fade-in flex flex-col items-center justify-center relative overflow-hidden">
         <!-- Top Bar Component -->
         <header class="w-full flex items-center justify-between py-6 absolute top-0 z-10">
           <button onclick="window.history.back()" class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-variant transition-colors active:scale-90">

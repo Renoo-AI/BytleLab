@@ -33,21 +33,23 @@ const init = () => {
   // 3. Handle Initial Navigation - Show splash first with fixed timeout
   router.navigate('/splash');
   
-  // Fixed time-based splash transition (1.5 seconds max, no async blocking)
-  setTimeout(() => {
-    if (!state.isAuthenticated) {
-      router.navigate('/login');
-    } else {
-      router.navigate('/');
-    }
-  }, 1500);
-
   // 4. Initialize Auth
   auth.init((userData) => {
     if (userData && (window.location.pathname === '/login' || window.location.pathname === '/signup' || window.location.pathname === '/splash')) {
       router.navigate('/');
     }
   });
+
+  // Fixed time-based splash transition (1.5 seconds max, no async blocking)
+  setTimeout(() => {
+    if (window.location.pathname === '/splash') {
+      if (!state.isAuthenticated) {
+        router.navigate('/login');
+      } else {
+        router.navigate('/');
+      }
+    }
+  }, 1500);
 
   // 5. Global App Methods
   window.app = {
