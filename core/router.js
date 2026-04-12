@@ -23,6 +23,13 @@ export class Router {
         this.navigate(link.getAttribute('href'));
       }
     });
+
+    // Listen for state changes to enforce reactive auth protection
+    document.addEventListener('stateChange', (e) => {
+      if (e.detail.path === 'isAuthenticated') {
+        this.handleRoute();
+      }
+    });
   }
 
   async navigate(path) {
@@ -128,6 +135,30 @@ export class Router {
   }
 
   init() {
+    const isPC = window.innerWidth >= 768;
+    const initialPath = window.location.pathname;
+
+    // 1. If not starting on splash, show splash first but remember where we wanted to go
+    if (initialPath !== '/splash') {
+      this.isSplashHandled = false;
+      window.history.replaceState({ redirectedFrom: initialPath }, '', '/splash');
+    }
+
     this.handleRoute();
+
+    // 2. Enforce 1.5s time-based splash transition (non-blocking)
+    setTimeout(() => {
+      if (window.location.pathname === '/splash') {
+        const stateFromHistory = window.history.state || {};
+        const destination = stateFromHistory.redirectedFrom || '/';
+
+        if (!state.isAuthenticated) {
+          this.navigate(isPC ? '/qr-login' : '/login');
+        } else {
+          this.navigate(destination);
+        }
+        this.isSplashHandled = true;
+      }
+    }, 1500);
   }
 }
