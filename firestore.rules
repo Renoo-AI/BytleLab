@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "user16belhaj@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasOnlyAllowedFields(['uid', 'name', 'email', 'avatar', 'rank', 'level', 'xp', 'flags', 'role', 'completed']) &&
+             data.uid is string &&
+             data.name is string && data.name.size() < 100 &&
+             data.email is string &&
+             data.avatar is string &&
+             data.rank is string &&
+             data.level is number &&
+             data.xp is number &&
+             data.flags is number &&
+             data.completed is list;
+    }
+
+    function isValidSubmission(data) {
+      return hasOnlyAllowedFields(['userId', 'challengeId', 'flag', 'timestamp']) &&
+             data.userId == request.auth.uid &&
+             data.challengeId is string &&
+             data.flag is string &&
+             data.timestamp is string;
+    }
+
+    // Server-side flag validation simulation
+    function isFlagCorrect(challengeId, flag) {
+      return (challengeId == 'web-basics-1' && flag == 'FLAG{web_basics_master}') ||
+             (challengeId == 'input-tampering-1' && flag == 'FLAG{input_is_not_trusted}');
+    }
+
+    function isValidSession(data) {
+      return hasOnlyAllowedFields(['status', 'userId', 'userData', 'createdAt']) &&
+             data.status in ['pending', 'approved', 'expired'] &&
+             (data.userId == null || data.userId is string) &&
+             (data.userData == null || data.userData is map) &&
+             data.createdAt is string;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if (isOwner(userId) || isAdmin()) && 
+                    isValidUser(request.resource.data) &&
+                    // Anti-cheat: Ensure XP/Flags only increase if a valid submission exists
+                    (
+                      request.resource.data.xp == resource.data.xp || 
+                      exists(/databases/$(database)/documents/submissions/$(userId + "_" + request.resource.data.completed[request.resource.data.completed.size() - 1]))
+                    );
+      allow delete: if isAdmin();
+    }
+
+    // Submissions (Server-side validation simulation)
+    match /submissions/{submissionId} {
+      allow create: if isAuthenticated() && 
+                    isValidSubmission(request.resource.data) &&
+                    isFlagCorrect(request.resource.data.challengeId, request.resource.data.flag);
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+    }
+
+    // QR Sessions
+    match /sessions/{sessionId} {
+      // Anyone can create a session (PC side)
+      allow create: if isValidSession(request.resource.data);
+      // Anyone can read a session (to check status)
+      allow read: if true;
+      // Only authenticated users can approve a session
+      allow update: if isAuthenticated() && 
+                    isValidSession(request.resource.data) &&
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'userId', 'userData']) &&
+                    request.resource.data.status == 'approved' &&
+                    request.resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+  }
+}

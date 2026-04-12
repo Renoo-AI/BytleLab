@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+:root {
+  --bg-main: linear-gradient(135deg, #f7f7fb 0%, #ecebff 100%);
+}
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-headline: "Plus Jakarta Sans", sans-serif;
+  
+  --color-primary: #4c40df;
+  --color-primary-container: #9995ff;
+  --color-on-primary: #f5f1ff;
+  
+  --color-secondary: #005da4;
+  --color-secondary-container: #b6d4ff;
+  
+  --color-tertiary: #006a3d;
+  --color-tertiary-container: #6afdaa;
+  
+  --color-surface: #fbf4ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container: #ede4ff;
+  --color-surface-container-low: #f5eeff;
+  --color-surface-container-high: #e8ddff;
+  --color-surface-container-highest: #e3d7ff;
+  
+  --color-on-surface: #32284f;
+  --color-on-surface-variant: #60557f;
+  
+  --color-outline-variant: #b3a6d5;
+  
+  --color-error: #b41340;
+  --color-error-container: #f74b6d;
+  
+  --radius-lg: 2rem;
+  --radius-xl: 3rem;
+}
+
+@layer base {
+  body {
+    @apply text-on-surface font-sans antialiased;
+    background: var(--bg-main);
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  button, input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Global Interactive Feedback */
+  button, 
+  a[data-link], 
+  .clickable,
+  [role="button"] {
+    @apply transition-all duration-200 cursor-pointer;
+  }
+
+  button:hover,
+  a[data-link]:hover,
+  .clickable:hover,
+  [role="button"]:hover {
+    @apply brightness-110;
+  }
+
+  button:active,
+  a[data-link]:active,
+  .clickable:active,
+  [role="button"]:active {
+    @apply scale-[0.97] brightness-90;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold py-4 px-8 rounded-full shadow-[0_4px_0_#32284f] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2;
+  }
+  
+  .card {
+    @apply bg-surface-container-lowest rounded-xl p-6 shadow-[0_8px_24px_rgba(50,40,79,0.06)] border border-outline-variant/10;
+  }
+  
+  .nav-item {
+    @apply flex flex-col items-center justify-center text-on-surface-variant p-3 hover:text-primary transition-all active:translate-y-1;
+  }
+  
+  .nav-item.active {
+    @apply text-primary;
+  }
+
+  .page {
+    @apply p-6;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-bounce-slow {
+    animation: bounceSlow 3s ease-in-out infinite;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounceSlow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  @keyframes shine {
+    from { transform: translateX(-100%) skewX(-15deg); }
+    to { transform: translateX(200%) skewX(-15deg); }
+  }
+
+  .animate-shine {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .animate-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: shine 3s infinite;
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      max-width: 480px;
+    }
+  }
+}
