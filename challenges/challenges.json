@@ -1,36 +1,26 @@
 [
   {
-    "id": "view-source",
+    "id": "web-basics-1",
     "title": "View Source",
-    "category": "Starter",
-    "scenario": "A simple website with a hidden secret.",
-    "objective": "Find the flag hidden in the page source.",
-    "difficulty": "Beginner",
-    "worldTheme": "foundations",
-    "hints": [
-      "Try right-clicking on the page.",
-      "Look for a \"View Page Source\" option in your browser.",
-      "The flag is hidden in a comment like <!-- FLAG{...} -->"
-    ],
-    "explanation": "Websites are made of HTML code that your browser reads. Sometimes developers leave comments in the code that aren't visible on the page itself.",
-    "preventionTip": "Never leave sensitive information or secrets in client-side code or comments.",
-    "xpReward": 50
+    "description": "The flag is hidden in the HTML source code of this page. Can you find it?",
+    "flag": "FLAG{SOURCE_CODE_EXPOSED}",
+    "difficulty": "Easy",
+    "points": 100
   },
   {
-    "id": "hidden-comments",
+    "id": "web-basics-2",
     "title": "Hidden Comments",
-    "category": "Starter",
-    "scenario": "A developer's personal blog.",
-    "objective": "Find the flag hidden in a developer comment.",
-    "difficulty": "Beginner",
-    "worldTheme": "foundations",
-    "hints": [
-      "Check the source code again.",
-      "Look for comments at the bottom of the page.",
-      "Developers often use comments to leave notes for themselves."
-    ],
-    "explanation": "Comments are useful for developers but can be a security risk if they contain sensitive info.",
-    "preventionTip": "Use a build process that strips comments from production code.",
-    "xpReward": 50
+    "description": "Developers often leave sensitive information in HTML comments. Find the comment containing the flag.",
+    "flag": "FLAG{COMMENT_SECURE_NOT}",
+    "difficulty": "Easy",
+    "points": 100
+  },
+  {
+    "id": "web-basics-3",
+    "title": "Robots.txt",
+    "description": "The robots.txt file tells search engines which pages they can or cannot visit. Sometimes it reveals hidden directories.",
+    "flag": "FLAG{ROBOTS_ARE_NOT_PRIVACY}",
+    "difficulty": "Easy",
+    "points": 100
   }
 ]

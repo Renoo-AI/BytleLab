@@ -1,27 +1,20 @@
-@reference "../core/design.css";
+@import "../core/design.css";
 
-/* Layout specific styles */
-#app-shell {
-  max-width: 100vw;
-  overflow-x: hidden;
+/* PC Layout specific styles */
+#pc-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 #main-content {
-  transition: opacity 0.3s ease;
+  flex-grow: 1;
+  padding-left: 120px; /* Space for the sidebar */
+  padding-top: 20px;
+  padding-right: 40px;
+  max-width: 1400px;
 }
 
-.loading {
-  @apply flex items-center justify-center h-full text-on-surface-variant font-bold;
+nav.fixed {
+  width: 80px;
 }
-
-/* Custom scrollbar for horizontal lists */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Animations */
-

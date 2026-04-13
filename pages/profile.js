@@ -43,17 +43,6 @@ export class Profile {
           </div>
         </section>
 
-        <!-- Achievements Section -->
-        <section class="space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-on-surface">Achievements</h3>
-            <button class="text-primary text-sm font-bold">View All</button>
-          </div>
-          <div class="flex overflow-x-auto gap-4 no-scrollbar pb-2">
-            ${this.renderAchievements()}
-          </div>
-        </section>
-
         <!-- Action List -->
         <section class="bg-surface-container-lowest rounded-xl p-2 space-y-1">
           <button onclick="const sid = prompt('Enter Session ID from PC:'); if(sid) window.app.approveSession(sid)" class="w-full flex items-center justify-between p-4 bg-primary/5 hover:bg-primary/10 transition-colors rounded-lg group border border-primary/10">
@@ -68,44 +57,9 @@ export class Profile {
             </div>
             <span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
           </button>
-          
-          <button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors rounded-lg group">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined">person_edit</span>
-              </div>
-              <span class="font-semibold text-on-surface">Edit Profile</span>
-            </div>
-            <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
-          </button>
-          <button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors rounded-lg group">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined">military_tech</span>
-              </div>
-              <span class="font-semibold text-on-surface">Achievements</span>
-            </div>
-            <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
-          </button>
         </section>
       </div>
     `;
   }
 
-  renderAchievements() {
-    const achievements = [
-      { id: 'first-flag', title: 'First Flag', icon: 'flag', color: 'tertiary' },
-      { id: 'streak-7', title: '7-Day Streak', icon: 'bolt', color: 'secondary' },
-      { id: 'web-novice', title: 'Web Novice', icon: 'public', color: 'primary' }
-    ];
-
-    return achievements.map(ach => `
-      <div class="flex-shrink-0 w-28 flex flex-col items-center space-y-2">
-        <div class="w-20 h-20 rounded-full bg-${ach.color}-container/30 flex items-center justify-center">
-          <span class="material-symbols-outlined text-${ach.color} text-4xl" style="font-variation-settings: 'FILL' 1;">${ach.icon}</span>
-        </div>
-        <span class="text-[11px] font-bold text-center leading-tight">${ach.title}</span>
-      </div>
-    `).join('');
-  }
 }

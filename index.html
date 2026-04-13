@@ -6,9 +6,9 @@
     <title>ByteLearn</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
-    <link rel="stylesheet" href="/core/design.css">
+    <link rel="stylesheet" id="platform-style" href="/core/design.css">
 </head>
-<body class="text-on-surface font-sans selection:bg-primary/20 overflow-x-hidden">
+<body class="bg-surface text-on-surface font-sans selection:bg-primary/20 overflow-x-hidden">
     <div id="app-root"></div>
 
     <script type="module">
@@ -16,7 +16,7 @@
         const root = document.getElementById('app-root');
         
         if (isPC) {
-            console.log('Initializing PC Interface...');
+            document.getElementById('platform-style').href = '/pc/style.css';
             root.innerHTML = `
                 <div id="pc-app" class="min-h-screen flex flex-col">
                     <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-8 py-4 flex items-center justify-between">
@@ -29,37 +29,31 @@
                             <div id="user-avatar-container" class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border-2 border-primary/20"></div>
                         </div>
                     </header>
-                    <div class="flex flex-grow relative">
-                        <nav id="pc-nav" class="sticky top-24 self-start ml-8 z-40 bg-surface/90 backdrop-blur-xl border border-outline-variant p-3 rounded-2xl flex flex-col gap-6 shadow-2xl shadow-primary/10">
-                            <a href="/" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                                <span class="material-symbols-outlined text-2xl">dashboard</span>
-                                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Home</span>
-                            </a>
-                            <a href="/paths" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                                <span class="material-symbols-outlined text-2xl">route</span>
-                                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Paths</span>
-                            </a>
-                            <a href="/map" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                                <span class="material-symbols-outlined text-2xl">map</span>
-                                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Map</span>
-                            </a>
-                            <a href="/bolt" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                                <span class="material-symbols-outlined text-2xl">bolt</span>
-                                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Bolt</span>
-                            </a>
-                            <div class="h-[1px] bg-outline-variant mx-2"></div>
-                            <a href="/profile" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                                <span class="material-symbols-outlined text-2xl">person</span>
-                                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Profile</span>
-                            </a>
-                        </nav>
-                        <main id="main-content" class="flex-grow"></main>
-                    </div>
+                    <main id="main-content" class="flex-grow pl-32"></main>
+                    <nav class="fixed left-8 top-1/2 -translate-y-1/2 z-40 bg-surface/90 backdrop-blur-xl border border-outline-variant p-3 rounded-2xl flex flex-col gap-6 shadow-2xl shadow-primary/10">
+                        <a href="/" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                            <span class="material-symbols-outlined text-2xl">dashboard</span>
+                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Home</span>
+                        </a>
+                        <a href="/paths" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                            <span class="material-symbols-outlined text-2xl">route</span>
+                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Paths</span>
+                        </a>
+                        <a href="/map" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                            <span class="material-symbols-outlined text-2xl">map</span>
+                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Map</span>
+                        </a>
+                        <div class="h-[1px] bg-outline-variant mx-2"></div>
+                        <a href="/profile" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                            <span class="material-symbols-outlined text-2xl">person</span>
+                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Profile</span>
+                        </a>
+                    </nav>
                 </div>
             `;
             import('./pc/app.js').catch(err => console.error('Failed to load PC app:', err));
         } else {
-            console.log('Initializing Mobile Interface...');
+
             root.innerHTML = `
                 <div id="phone-app" class="min-h-screen flex flex-col">
                     <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-4 py-3 flex items-center justify-between">
@@ -84,14 +78,6 @@
                                 <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
                             </button>
                         </div>
-                        <a href="/progress" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">analytics</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Stats</span>
-                        </a>
-                        <a href="/settings" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">settings</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Settings</span>
-                        </a>
                     </nav>
                 </div>
             `;

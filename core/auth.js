@@ -1,69 +1,40 @@
-import { firebaseAuth, firestore } from './firebase.js';
-import { updateState, state, resetState } from './state.js';
-import { storage } from './storage.js';
+import { updateState, state } from './state.js';
 
 export const auth = {
-  // Initialize auth state
   init(onUserLoaded) {
-    return firebaseAuth.onAuthStateChanged(async (user) => {
-      if (user) {
-        // Start listening to Firestore (Source of Truth)
-        firestore.listenToUser(user.uid, (userData) => {
-          updateState('user', userData);
-          updateState('isAuthenticated', true);
-          if (onUserLoaded) onUserLoaded(userData);
-        });
-
-        // Ensure user document exists (one-time check)
-        const existingData = await firestore.getUserData(user.uid);
-        if (!existingData) {
-          const newProfile = {
-            uid: user.uid,
-            name: user.displayName || 'Explorer',
-            email: user.email,
-            avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
-            rank: 'Junior Pentester',
-            level: 1,
-            xp: 0,
-            flags: 0,
-            completed: [],
-            role: 'user'
-          };
-          await firestore.saveUserData(user.uid, newProfile);
-        }
-      } else {
-        updateState('isAuthenticated', false);
-        updateState('user', null);
-      }
-    });
+    if (state.isAuthenticated && state.user) {
+      if (onUserLoaded) onUserLoaded(state.user);
+    }
   },
 
   async loginWithGoogle() {
-    try {
-      await firebaseAuth.signInWithGoogle();
-      return true;
-    } catch (error) {
-      console.error('Auth Error');
-      return false;
-    }
+    const mockUser = {
+      uid: 'local-user',
+      name: 'Local Explorer',
+      email: 'explorer@bytelearn.local',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=local',
+      rank: 'Junior Pentester',
+      level: 1,
+      xp: 0,
+      flags: 0,
+      completed: [],
+      role: 'user'
+    };
+
+    updateState('user', mockUser);
+    updateState('isAuthenticated', true);
+    return true;
   },
 
   async logout() {
-    await firebaseAuth.logout();
     updateState('isAuthenticated', false);
     updateState('user', null);
-    storage.clear();
+    updateState('completed', []);
+    updateState('xp', 0);
+    updateState('level', 0);
   },
 
-  async approvePCLogin(sessionId) {
-    if (!state.isAuthenticated || !state.user) return false;
-    try {
-      const userData = JSON.parse(JSON.stringify(state.user));
-      await firestore.approveSession(sessionId, state.user.uid, userData);
-      return true;
-    } catch (error) {
-      console.error('Approval Error');
-      return false;
-    }
+  async approvePCLogin() {
+    return true;
   }
 };

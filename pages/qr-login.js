@@ -18,7 +18,7 @@ export class QRLogin {
 
     // 2. Expiration timer (2 minutes)
     this.expirationTimer = setTimeout(async () => {
-      console.log('Session expired');
+
       if (this.unsubscribe) this.unsubscribe();
       if (qrContainer) {
         qrContainer.innerHTML = `
@@ -43,7 +43,7 @@ export class QRLogin {
     // 3. Listen for approval
     this.unsubscribe = firestore.listenToSession(this.sessionId, async (data) => {
       if (data.status === 'approved' && data.userId) {
-        console.log('Session approved for user:', data.userId);
+
         
         // Use userData from session if available (PC is not authenticated)
         let userData = data.userData;
@@ -75,7 +75,7 @@ export class QRLogin {
     setTimeout(() => this.onMount(), 100);
 
     return `
-      <div class="container animate-fade-in flex flex-col items-center min-h-screen overflow-hidden relative">
+      <div class="auth-page-bg container animate-fade-in flex flex-col items-center min-h-screen overflow-hidden relative">
         <!-- Top App Bar -->
         <header class="w-full top-0 flex items-center justify-center px-6 py-8 relative z-10">
           <div class="flex items-center gap-2">

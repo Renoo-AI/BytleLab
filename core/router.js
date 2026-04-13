@@ -3,8 +3,6 @@
  * Handles navigation without page reloads.
  */
 
-import { state } from './state.js';
-
 export class Router {
   constructor(routes, containerId) {
     this.routes = routes;
@@ -21,13 +19,6 @@ export class Router {
       if (link) {
         e.preventDefault();
         this.navigate(link.getAttribute('href'));
-      }
-    });
-
-    // Listen for state changes to enforce reactive auth protection
-    document.addEventListener('stateChange', (e) => {
-      if (e.detail.path === 'isAuthenticated') {
-        this.handleRoute();
       }
     });
   }
@@ -50,6 +41,7 @@ export class Router {
 
     const path = window.location.pathname;
     const isPC = window.innerWidth >= 768;
+    const { state } = await import('./state.js');
 
     // 1. Platform-Specific Route Protection
     if (isPC) {
@@ -95,17 +87,9 @@ export class Router {
       params.id = path.split('/')[2];
     }
 
-    let route = this.routes[routeKey];
-
-    // 5. Fallback logic
-    if (!route) {
-      console.warn(`Route not found: ${path}. Falling back to home.`);
-      window.history.replaceState({}, '', '/');
-      await this.handleRoute();
-      return;
-    }
+    const route = this.routes[routeKey] || this.routes['/404'] || this.routes['/'];
     
-    this.currentPath = routeKey === path ? path : window.location.pathname;
+    this.currentPath = path;
     
     try {
       const page = await route(params);
@@ -135,29 +119,21 @@ export class Router {
   }
 
   init() {
-    const isPC = window.innerWidth >= 768;
-    const initialPath = window.location.pathname;
-
-    // 1. If not starting on splash, show splash first but remember where we wanted to go
-    if (initialPath !== '/splash') {
-      this.isSplashHandled = false;
-      window.history.replaceState({ redirectedFrom: initialPath }, '', '/splash');
-    }
-
     this.handleRoute();
+  }
 
-    // 2. Enforce 1.5s time-based splash transition (non-blocking)
+  // Handle splash screen transition with fixed timeout
+  handleSplashTransition(router, isPC) {
+    if (this.isSplashHandled) return;
+    this.isSplashHandled = true;
+
+    // Fixed 1.5 second splash duration - no async dependencies
     setTimeout(() => {
-      if (window.location.pathname === '/splash') {
-        const stateFromHistory = window.history.state || {};
-        const destination = stateFromHistory.redirectedFrom || '/';
-
-        if (!state.isAuthenticated) {
-          this.navigate(isPC ? '/qr-login' : '/login');
-        } else {
-          this.navigate(destination);
-        }
-        this.isSplashHandled = true;
+      const { state } = window;
+      if (!state || !state.isAuthenticated) {
+        router.navigate(isPC ? '/qr-login' : '/login');
+      } else {
+        router.navigate('/');
       }
     }, 1500);
   }

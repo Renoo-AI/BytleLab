@@ -30,15 +30,15 @@ export class Home {
             <div class="relative z-10 space-y-6">
               <div class="space-y-2">
                 <span class="text-xs font-bold uppercase tracking-widest text-primary">Current Path</span>
-                <h2 class="text-2xl font-bold text-on-surface">${state.progress.currentPath}</h2>
+                <h2 class="text-2xl font-bold text-on-surface">Web Basics</h2>
               </div>
               <div class="space-y-3">
                 <div class="flex justify-between items-end">
-                  <span class="text-sm font-semibold text-on-surface-variant">65% Completed</span>
-                  <span class="text-xs font-bold text-primary">8/12 Modules</span>
+                  <span class="text-sm font-semibold text-on-surface-variant">0% Completed</span>
+                  <span class="text-xs font-bold text-primary">0/12 Modules</span>
                 </div>
                 <div class="h-3 w-full bg-surface-container-low rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-primary to-primary-container rounded-full" style="width: 65%"></div>
+                  <div class="h-full bg-gradient-to-r from-primary to-primary-container rounded-full" style="width: 0%"></div>
                 </div>
               </div>
               <a href="/map" data-link class="btn-primary w-full">
@@ -57,14 +57,14 @@ export class Home {
           <div class="bg-surface-container-low p-6 rounded-xl space-y-2">
             <span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">flag</span>
             <div>
-              <div class="text-2xl font-black text-on-surface">${state.user.flags}</div>
+              <div class="text-2xl font-black text-on-surface">${state.completed.length}</div>
               <div class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Total Flags</div>
             </div>
           </div>
           <div class="bg-surface-container-low p-6 rounded-xl space-y-2">
             <span class="material-symbols-outlined text-primary">trending_up</span>
             <div>
-              <div class="text-2xl font-black text-on-surface">${state.user.level}</div>
+              <div class="text-2xl font-black text-on-surface">${state.level}</div>
               <div class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Current Level</div>
             </div>
           </div>
@@ -74,7 +74,6 @@ export class Home {
         <section class="space-y-4 pb-12">
           <div class="flex justify-between items-center">
             <h3 class="text-xl font-bold text-on-surface">Challenge Categories</h3>
-            <button class="text-sm font-bold text-primary">View All</button>
           </div>
           <div class="space-y-3">
             ${this.renderCategories()}
@@ -85,7 +84,11 @@ export class Home {
   }
 
   renderCategories() {
-    return state.progress.paths.map(path => `
+    const paths = [
+      { id: 'web-basics', title: 'Web Basics', status: 'in-progress', progress: 0, lessons: 12, difficulty: 'Easy', icon: 'language' },
+      { id: 'input-tampering', title: 'Input Tampering', status: 'locked', progress: 0, lessons: 8, difficulty: 'Medium', icon: 'keyboard' }
+    ];
+    return paths.map(path => `
       <a href="/map" data-link class="group flex items-center gap-4 p-4 ${path.status === 'locked' ? 'opacity-60 grayscale pointer-events-none' : 'bg-surface-container-low'} rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer no-underline">
         <div class="w-14 h-14 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
           <span class="material-symbols-outlined text-2xl">${path.icon}</span>

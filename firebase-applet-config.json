@@ -1,9 +1,10 @@
 {
-  "projectId": "byte-learn-ai",
-  "appId": "1:364523963776:web:80a81d69dc06940ba72d65",
-  "apiKey": "AIzaSyAcgjxYVux4fiSPqrk3IafoXAlzTWnaBIM",
-  "authDomain": "byte-learn-ai.firebaseapp.com",
-  "storageBucket": "byte-learn-ai.firebasestorage.app",
-  "messagingSenderId": "364523963776",
-  "measurementId": "G-WESBM7YXL3"
+  "projectId": "gen-lang-client-0717553044",
+  "appId": "1:589865629124:web:877b712d134d752564e091",
+  "apiKey": "AIzaSyDvWh_KSXAQITWCF0tWnbnpZ6eBfJd5BAk",
+  "authDomain": "gen-lang-client-0717553044.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-d96b9411-3bf7-4f80-b710-7f22f132ff53",
+  "storageBucket": "gen-lang-client-0717553044.firebasestorage.app",
+  "messagingSenderId": "589865629124",
+  "measurementId": ""
 }

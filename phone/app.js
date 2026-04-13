@@ -1,4 +1,4 @@
-import { state, resetState } from '../core/state.js';
+import { state, setState } from '../core/state.js';
 import { storage } from '../core/storage.js';
 import { Router } from '../core/router.js';
 import { auth } from '../core/auth.js';
@@ -18,26 +18,41 @@ const routes = {
   '/signup': () => new Signup(),
   '/splash': () => new Splash(),
   '/challenge/:id': (params) => new Challenge(params),
-  '/progress': () => new Profile(), // Placeholder
-  '/settings': () => new Profile(), // Placeholder
 };
 
 const init = () => {
   // 1. Initialize State
   const savedState = storage.load();
-  if (savedState) resetState(savedState);
+  if (savedState) setState(savedState);
 
   // 2. Initialize Router
   const router = new Router(routes, 'main-content');
   
-  // 3. Initialize Auth
-  auth.init();
+  // 3. Handle Initial Navigation - Show splash first with fixed timeout
+  router.navigate('/splash');
 
-  // 4. Initialize Router with centralized splash handling
-  router.init();
+  // Fixed time-based splash transition (1.5 seconds max, no async blocking)
+  setTimeout(() => {
+    if (!state.isAuthenticated) {
+      router.navigate('/login');
+    } else {
+      router.navigate('/');
+    }
+  }, 1500);
+
+  // 4. Initialize Auth
+  auth.init((userData) => {
+    if (userData && (window.location.pathname === '/login' || window.location.pathname === '/signup' || window.location.pathname === '/splash')) {
+      router.navigate('/');
+    }
+  });
 
   // 5. Global App Methods
   window.app = {
+    loginWithGoogle: async () => {
+      const success = await auth.loginWithGoogle();
+      if (success) router.navigate('/');
+    },
     approveSession: async (sessionId) => {
       const success = await auth.approvePCLogin(sessionId);
       if (success) alert('PC Authorized!');
@@ -79,6 +94,6 @@ function updateGlobalUI() {
   if (topBar) topBar.style.display = isHidden ? 'none' : 'flex';
 
   if (statsContainer) {
-    statsContainer.textContent = state.isAuthenticated ? `${state.user.level} LVL • ${state.user.xp} XP` : '';
+    statsContainer.textContent = state.isAuthenticated ? `${state.level} LVL • ${state.xp} XP` : '';
   }
 }

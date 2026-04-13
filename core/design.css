@@ -39,7 +39,7 @@
 
 @layer base {
   body {
-    @apply text-on-surface bg-surface font-sans antialiased;
+    @apply text-on-surface font-sans antialiased;
     background: var(--bg-main);
     min-height: 100vh;
     margin: 0;
@@ -101,14 +101,13 @@
 
   .container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 420px;
     margin: 0 auto;
     padding: 16px;
-    box-sizing: border-box;
   }
 
   .animate-fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
+    animation: fadeIn 0.5s ease-out forwards;
   }
 
   .animate-bounce-slow {
@@ -151,10 +150,15 @@
     animation: shine 3s infinite;
   }
 
-  /* Global Background Decorations - Applied once to all pages via body */
-  body::before {
+  /* Global Background Decorations - Applied once to all auth pages */
+  .auth-page-bg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-page-bg::before {
     content: "";
-    position: fixed;
+    position: absolute;
     top: -10%;
     left: -10%;
     width: 40%;
@@ -163,12 +167,11 @@
     border-radius: 50%;
     filter: blur(120px);
     pointer-events: none;
-    z-index: -1;
   }
 
-  body::after {
+  .auth-page-bg::after {
     content: "";
-    position: fixed;
+    position: absolute;
     bottom: -10%;
     right: -10%;
     width: 40%;
@@ -177,13 +180,24 @@
     border-radius: 50%;
     filter: blur(120px);
     pointer-events: none;
-    z-index: -1;
   }
 
   /* Responsive container adjustments */
   @media (max-width: 640px) {
     .container {
       padding: 12px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      max-width: 480px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      max-width: 560px;
     }
   }
 }

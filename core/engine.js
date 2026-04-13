@@ -7,10 +7,9 @@ export const engine = {
   _startTime: null,
   _attempts: 0,
 
-  startChallenge(challengeId) {
+  startChallenge() {
     this._startTime = Date.now();
     this._attempts = 0;
-    console.log(`Challenge ${challengeId} started.`);
   },
 
   async loadChallenges() {
@@ -21,45 +20,27 @@ export const engine = {
   async validateFlag(challengeId, flag) {
     this._attempts++;
     
-    // Use a non-global way to get user ID
-    const { state } = await import('./state.js');
-    if (!state.isAuthenticated || !state.user) return false;
+    const challenges = await this.loadChallenges();
+    const challenge = challenges.find(c => c.id === challengeId);
 
-    // Server-side validation simulation via Firestore Submissions
-    const { firestore } = await import('./firebase.js');
-    const isValid = await firestore.submitChallenge(state.user.uid, challengeId, flag);
+    if (!challenge) return false;
+
+    const isValid = challenge.flag === flag;
     
     if (isValid) {
-      this._finalizeCompletion(challengeId);
+      await this._finalizeCompletion(challengeId);
     }
     
     return isValid;
   },
 
-  _finalizeCompletion(challengeId) {
-    const duration = (Date.now() - this._startTime) / 1000;
-    
-    // Anti-cheat: If solved in less than 2 seconds, it's suspicious
-    if (duration < 2) {
-      console.warn('Suspiciously fast completion detected.');
+  async _finalizeCompletion(challengeId) {
+    const { state, updateState } = await import('./state.js');
+    if (!state.completed.includes(challengeId)) {
+      const newCompleted = [...state.completed, challengeId];
+      updateState('completed', newCompleted);
+      updateState('xp', (state.xp || 0) + 100);
+      updateState('level', (state.level || 0) + 1);
     }
-
-    // Update local state (Firestore listener will also sync this)
-    import('./state.js').then(({ state }) => {
-      if (!state.completed.includes(challengeId)) {
-        const newCompleted = [...state.completed, challengeId];
-        const newXp = state.user.xp + 100;
-        const newFlags = state.user.flags + 1;
-        
-        // Update Firestore (Source of Truth)
-        import('./firebase.js').then(({ firestore }) => {
-          firestore.saveUserData(state.user.uid, {
-            completed: newCompleted,
-            xp: newXp,
-            flags: newFlags
-          });
-        });
-      }
-    });
   }
 };
