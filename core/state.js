@@ -1,63 +1,96 @@
 /**
  * Global State Management
- * Holds user progress, XP, levels, and current state.
+ * Simple reactive state container with deep proxy protection.
  */
 
-// Internal state that is not directly exported as a mutable object
-let _state = {
-  isAuthenticated: false,
-  user: null,
-  completed: [],
-  progress: {
-    currentPath: 'Web Basics',
-    paths: [
-      { id: 'web-basics', title: 'Web Basics', status: 'in-progress', progress: 0, lessons: 12, difficulty: 'Easy', icon: 'language' },
-      { id: 'input-tampering', title: 'Input Tampering', status: 'locked', progress: 0, lessons: 8, difficulty: 'Medium', icon: 'keyboard' },
-      { id: 'file-discovery', title: 'File Discovery', status: 'locked', progress: 0, lessons: 15, difficulty: 'Medium', icon: 'folder_open' },
-      { id: 'web-attacks', title: 'Web Attacks', status: 'locked', progress: 0, lessons: 24, difficulty: 'Hard', icon: 'security' }
-    ]
+const DEFAULT_STATE = {
+  user: {
+    name: 'ByteLearner',
+    email: '',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=local'
   },
-  settings: {
-    theme: 'light',
-    notifications: true
-  }
+  isAuthenticated: false,
+  completed: [],
+  level: 1,
+  xp: 0,
+  streak: 0
 };
 
-// Export a read-only proxy of the state to prevent direct mutation
-export const state = new Proxy(_state, {
-  get: (target, prop) => {
-    return target[prop];
-  },
-  set: () => {
-    console.error('Direct state mutation is forbidden. Use updateState().');
-    return false;
-  }
-});
-
-export function updateState(path, value) {
-  const keys = path.split('.');
-  let current = _state;
-  
-  for (let i = 0; i < keys.length - 1; i++) {
-    if (!current[keys[i]]) current[keys[i]] = {};
-    current = current[keys[i]];
-  }
-  
-  const lastKey = keys[keys.length - 1];
-  
-  // Basic validation
-  if (path === 'completed' && !Array.isArray(value)) return;
-
-  // Only update if value changed to prevent loops
-  if (JSON.stringify(current[lastKey]) === JSON.stringify(value)) return;
-
-  current[lastKey] = value;
-  
-  document.dispatchEvent(new CustomEvent('stateChange', { detail: { path, value } }));
+function createDeepProxy(obj, onChange) {
+  const handler = {
+    get(target, property, receiver) {
+      const value = Reflect.get(target, property, receiver);
+      if (value !== null && typeof value === 'object') {
+        return createDeepProxy(value, onChange);
+      }
+      return value;
+    },
+    set(target, property, value, receiver) {
+      const oldValue = target[property];
+      if (oldValue !== value) {
+        const result = Reflect.set(target, property, value, receiver);
+        onChange();
+        return result;
+      }
+      return true;
+    }
+  };
+  return new Proxy(obj, handler);
 }
 
-export function resetState(newState) {
-  if (newState) {
-    _state = { ..._state, ...newState };
+// Initial state load
+let internalState = { ...DEFAULT_STATE };
+try {
+  const saved = localStorage.getItem('bytelearn_state');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    // Merge with defaults to ensure all keys exist
+    internalState = { ...DEFAULT_STATE, ...parsed };
+    // Ensure nested objects are also merged
+    if (parsed.user) internalState.user = { ...DEFAULT_STATE.user, ...parsed.user };
+    if (!Array.isArray(internalState.completed)) internalState.completed = [];
   }
+} catch (e) {
+  console.warn('Failed to load state, using defaults');
+}
+
+export const state = createDeepProxy(internalState, () => {
+  localStorage.setItem('bytelearn_state', JSON.stringify(internalState));
+  // Emit event for reactivity
+  document.dispatchEvent(new CustomEvent('stateChange', { detail: { state: internalState } }));
+});
+
+/**
+ * Resets state to defaults (logout)
+ */
+export function logout() {
+  Object.keys(internalState).forEach(key => {
+    internalState[key] = DEFAULT_STATE[key];
+  });
+  localStorage.removeItem('bytelearn_state');
+  window.location.href = '/splash';
+}
+
+/**
+ * Updates multiple state properties at once
+ */
+export function setState(newState) {
+  Object.assign(internalState, newState);
+  localStorage.setItem('bytelearn_state', JSON.stringify(internalState));
+  document.dispatchEvent(new CustomEvent('stateChange', { detail: { state: internalState } }));
+}
+
+/**
+ * Update single path in state
+ */
+export function updateState(path, value) {
+  const parts = path.split('.');
+  let current = internalState;
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (!current[parts[i]]) current[parts[i]] = {};
+    current = current[parts[i]];
+  }
+  current[parts[parts.length - 1]] = value;
+  localStorage.setItem('bytelearn_state', JSON.stringify(internalState));
+  document.dispatchEvent(new CustomEvent('stateChange', { detail: { state: internalState } }));
 }

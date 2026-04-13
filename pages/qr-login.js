@@ -1,3 +1,6 @@
+import { firestore } from '../core/firebase.js';
+import qrcode from 'qrcode-generator';
+
 export class QRLogin {
   constructor() {
     this.sessionId = Math.random().toString(36).substring(2, 15);
@@ -15,7 +18,7 @@ export class QRLogin {
 
     // 2. Expiration timer (2 minutes)
     this.expirationTimer = setTimeout(async () => {
-      console.log('Session expired');
+
       if (this.unsubscribe) this.unsubscribe();
       if (qrContainer) {
         qrContainer.innerHTML = `
@@ -40,7 +43,7 @@ export class QRLogin {
     // 3. Listen for approval
     this.unsubscribe = firestore.listenToSession(this.sessionId, async (data) => {
       if (data.status === 'approved' && data.userId) {
-        console.log('Session approved for user:', data.userId);
+
         
         // Use userData from session if available (PC is not authenticated)
         let userData = data.userData;

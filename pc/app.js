@@ -1,4 +1,4 @@
-import { state, updateState, resetState } from '../core/state.js';
+import { state, updateState, setState } from '../core/state.js';
 import { storage } from '../core/storage.js';
 import { Router } from '../core/router.js';
 import { auth } from '../core/auth.js';
@@ -8,8 +8,6 @@ import { Home } from '../pages/home.js';
 import { Paths } from '../pages/paths.js';
 import { Map } from '../pages/map.js';
 import { Profile } from '../pages/profile.js';
-import { BoltPage } from '../pages/bolt-page.js';
-import { Upgrade } from '../pages/upgrade.js';
 import { Splash } from '../pages/splash.js';
 import { QRLogin } from '../pages/qr-login.js';
 import { Challenge } from '../pages/challenge.js';
@@ -19,8 +17,6 @@ const routes = {
   '/paths': () => new Paths(),
   '/map': () => new Map(),
   '/profile': () => new Profile(),
-  '/bolt': () => new BoltPage(),
-  '/upgrade': () => new Upgrade(),
   '/splash': () => new Splash(),
   '/qr-login': () => new QRLogin(),
   '/challenge/:id': (params) => new Challenge(params),
@@ -30,14 +26,14 @@ const routes = {
 const init = () => {
   // 1. Initialize State
   const savedState = storage.load();
-  if (savedState) resetState(savedState);
+  if (savedState) setState(savedState);
 
   // 2. Initialize Router
   const router = new Router(routes, 'main-content');
   
   // 3. Handle Initial Navigation - Show splash first with fixed timeout
   router.navigate('/splash');
-  
+
   // Fixed time-based splash transition (1.5 seconds max, no async blocking)
   setTimeout(() => {
     if (!state.isAuthenticated) {
@@ -117,6 +113,6 @@ function updateGlobalUI() {
   }
 
   if (statsContainer) {
-    statsContainer.textContent = state.isAuthenticated ? `${state.user.level} LVL • ${state.user.xp} XP` : '';
+    statsContainer.textContent = state.isAuthenticated ? `${state.level} LVL • ${state.xp} XP` : '';
   }
 }

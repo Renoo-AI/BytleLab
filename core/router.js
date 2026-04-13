@@ -126,7 +126,7 @@ export class Router {
   handleSplashTransition(router, isPC) {
     if (this.isSplashHandled) return;
     this.isSplashHandled = true;
-    
+
     // Fixed 1.5 second splash duration - no async dependencies
     setTimeout(() => {
       const { state } = window;

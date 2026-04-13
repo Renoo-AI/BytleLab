@@ -122,7 +122,7 @@ export const firestore = {
       return true;
     } catch (error) {
       // If permission denied, it means the flag was wrong (per security rules)
-      console.warn('Submission rejected by server validation.');
+
       return false;
     }
   },

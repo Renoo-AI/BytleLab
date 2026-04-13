@@ -6,7 +6,7 @@
     <title>ByteLearn</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
-    <link rel="stylesheet" href="/core/design.css">
+    <link rel="stylesheet" id="platform-style" href="/core/design.css">
 </head>
 <body class="bg-surface text-on-surface font-sans selection:bg-primary/20 overflow-x-hidden">
     <div id="app-root"></div>
@@ -16,7 +16,7 @@
         const root = document.getElementById('app-root');
         
         if (isPC) {
-            console.log('Initializing PC Interface...');
+            document.getElementById('platform-style').href = '/pc/style.css';
             root.innerHTML = `
                 <div id="pc-app" class="min-h-screen flex flex-col">
                     <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-8 py-4 flex items-center justify-between">
@@ -43,10 +43,6 @@
                             <span class="material-symbols-outlined text-2xl">map</span>
                             <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Map</span>
                         </a>
-                        <a href="/bolt" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                            <span class="material-symbols-outlined text-2xl">bolt</span>
-                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Bolt</span>
-                        </a>
                         <div class="h-[1px] bg-outline-variant mx-2"></div>
                         <a href="/profile" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
                             <span class="material-symbols-outlined text-2xl">person</span>
@@ -57,7 +53,7 @@
             `;
             import('./pc/app.js').catch(err => console.error('Failed to load PC app:', err));
         } else {
-            console.log('Initializing Mobile Interface...');
+
             root.innerHTML = `
                 <div id="phone-app" class="min-h-screen flex flex-col">
                     <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-4 py-3 flex items-center justify-between">
@@ -82,14 +78,6 @@
                                 <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
                             </button>
                         </div>
-                        <a href="/progress" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">analytics</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Stats</span>
-                        </a>
-                        <a href="/settings" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">settings</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Settings</span>
-                        </a>
                     </nav>
                 </div>
             `;

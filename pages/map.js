@@ -2,15 +2,6 @@ import { state } from '../core/state.js';
 
 export class Map {
   render() {
-    if (!state.user) {
-      return `
-        <div class="container animate-fade-in flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p class="text-on-surface-variant font-medium">Loading map...</p>
-        </div>
-      `;
-    }
-
     const levels = [
       { id: 'web-basics-1', title: 'View Source', icon: 'visibility', module: 'Foundations' },
       { id: 'web-basics-2', title: 'Hidden Comments', icon: 'comment', module: 'Foundations' },
@@ -23,7 +14,7 @@ export class Map {
       <div class="container animate-fade-in">
         <!-- Path Header -->
         <div class="mb-12 text-center relative">
-          <h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">${state.progress.currentPath}</h1>
+          <h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Web Basics</h1>
           <p class="text-on-surface-variant font-medium">Learn the art of digital inspection</p>
           <div class="absolute -right-4 -top-8 w-24 h-24">
             <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" alt="Bolt Mascot" class="w-full h-full object-contain">
@@ -45,7 +36,7 @@ export class Map {
 
   renderLevels(levels) {
     let currentModule = '';
-    const completed = state.user.completed || [];
+    const completed = state.completed || [];
 
     return levels.map((level, index) => {
       let html = '';

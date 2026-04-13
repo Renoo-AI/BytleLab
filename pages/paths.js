@@ -1,5 +1,3 @@
-import { state } from '../core/state.js';
-
 export class Paths {
   render() {
     return `
@@ -19,23 +17,18 @@ export class Paths {
           ${this.renderPaths()}
         </div>
 
-        <!-- Daily Challenge -->
-        <section class="mt-12">
-          <div class="bg-gradient-to-br from-tertiary to-on-tertiary-fixed-variant rounded-xl p-8 text-on-tertiary relative overflow-hidden">
-            <div class="relative z-10 space-y-2">
-              <h4 class="text-2xl font-black">Daily Challenge</h4>
-              <p class="text-sm opacity-90 max-w-[200px]">Unlock a mystery box by completing today's XSS drill.</p>
-              <button class="mt-4 px-6 py-2 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest hover:bg-white/30 transition-colors">Start Now</button>
-            </div>
-            <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-20 rotate-12" style="font-variation-settings: 'FILL' 1;">military_tech</span>
-          </div>
-        </section>
       </div>
     `;
   }
 
   renderPaths() {
-    return state.progress.paths.map(path => `
+    const paths = [
+      { id: 'web-basics', title: 'Web Basics', status: 'in-progress', progress: 0, lessons: 12, difficulty: 'Easy', icon: 'language' },
+      { id: 'input-tampering', title: 'Input Tampering', status: 'locked', progress: 0, lessons: 8, difficulty: 'Medium', icon: 'keyboard' },
+      { id: 'file-discovery', title: 'File Discovery', status: 'locked', progress: 0, lessons: 15, difficulty: 'Medium', icon: 'folder_open' },
+      { id: 'web-attacks', title: 'Web Attacks', status: 'locked', progress: 0, lessons: 24, difficulty: 'Hard', icon: 'security' }
+    ];
+    return paths.map(path => `
       <a href="/map" data-link class="group relative bg-surface-container-low rounded-xl p-6 transition-all hover:bg-surface-container-highest flex flex-col gap-4 overflow-hidden no-underline ${path.status === 'locked' ? 'opacity-70 grayscale-[0.5] pointer-events-none' : ''}">
         <div class="flex justify-between items-start">
           <div class="flex items-center gap-4">

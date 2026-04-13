@@ -1,4 +1,3 @@
-import { state } from '../core/state.js';
 import { engine } from '../core/engine.js';
 
 export class Challenge {
@@ -11,32 +10,8 @@ export class Challenge {
   }
 
   async onMount() {
-    // In a real app, we'd fetch challenge data from Firestore
-    const challenges = {
-      'web-basics-1': {
-        title: 'View Source',
-        description: 'The flag is hidden in the HTML source code of this page. Can you find it?',
-        hint: 'Right-click and select "View Page Source" or use DevTools (F12).',
-        difficulty: 'Easy',
-        points: 100
-      },
-      'web-basics-2': {
-        title: 'Hidden Comments',
-        description: 'Developers often leave sensitive information in HTML comments. Find the comment containing the flag.',
-        hint: 'Look for <!-- ... --> tags in the source.',
-        difficulty: 'Easy',
-        points: 100
-      },
-      'web-basics-3': {
-        title: 'Robots.txt',
-        description: 'The robots.txt file tells search engines which pages they can or cannot visit. Sometimes it reveals hidden directories.',
-        hint: 'Try navigating to /robots.txt',
-        difficulty: 'Easy',
-        points: 100
-      }
-    };
-
-    this.challenge = challenges[this.id] || {
+    const challenges = await engine.loadChallenges();
+    this.challenge = challenges.find(c => c.id === this.id) || {
       title: 'Unknown Challenge',
       description: 'This challenge does not exist yet.',
       difficulty: '???',
@@ -53,7 +28,7 @@ export class Challenge {
   }
 
   async submitFlag() {
-    console.log('Submitting flag for challenge:', this.challengeId);
+
     const input = document.getElementById('flag-input');
     if (!input || this.isSubmitting) return;
 

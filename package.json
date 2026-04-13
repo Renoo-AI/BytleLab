@@ -16,6 +16,7 @@
     "qrcode-generator": "^2.0.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4.1.12",
     "eslint": "^9.39.1",
     "globals": "^17.5.0",
