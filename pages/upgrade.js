@@ -1,196 +1,202 @@
 export class Upgrade {
   render() {
     return `
-      <div class="container animate-fade-in pb-32">
-        <!-- TopAppBar Navigation Shell -->
-        <header class="flex items-center px-6 h-16 w-full fixed top-0 z-50 backdrop-blur-xl border-b border-outline-variant/10">
-          <div class="flex items-center justify-between w-full">
-            <button onclick="window.history.back()" class="text-primary hover:opacity-80 transition-opacity scale-95 active:scale-90 transition-transform">
-              <span class="material-symbols-outlined">arrow_back</span>
-            </button>
-            <h1 class="font-headline font-bold tracking-tight text-on-surface text-lg">Upgrade Plan</h1>
-            <div class="w-6"></div> <!-- Spacer for centering -->
+      <div class="min-h-screen bg-[#0a051a] text-white animate-fade-in pb-20">
+        <!-- Hero Section -->
+        <section class="relative overflow-hidden pt-20 pb-32 px-8 text-center">
+          <div class="absolute inset-0 z-0">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] aspect-square bg-[radial-gradient(circle_at_center,rgba(124,58,237,0.15)_0%,transparent_70%)] blur-[100px]"></div>
           </div>
-        </header>
-
-        <main class="pt-20 flex flex-col">
-          <!-- Hero Section with Bolt Mascot -->
-          <section class="relative mb-12 flex flex-col items-center text-center">
-            <div class="relative w-48 h-48 mb-[-20px] z-10">
-              <img alt="Bolt Mascot" class="w-full h-full object-contain" src="https://dropshare.42web.io/1/files/UlGS73JZET.png">
+          
+          <div class="relative z-10 space-y-8 max-w-2xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-400 text-xs font-black uppercase tracking-[0.2em] animate-pulse">
+              <span class="material-symbols-outlined text-sm">workspace_premium</span>
+              ByteLearn Elite
             </div>
-            <div class="bg-surface-container-low p-8 rounded-xl w-full pt-12">
-              <h2 class="text-3xl font-extrabold tracking-tight mb-2 text-on-surface leading-tight">Unlock Your Full Potential</h2>
-              <p class="text-on-surface-variant font-medium">Master cybersecurity with Bolt by your side.</p>
-            </div>
-          </section>
+            <h1 class="text-6xl font-black tracking-tighter leading-none">
+              Elevate Your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400">Cyber Intelligence</span>
+            </h1>
+            <p class="text-white/60 font-medium text-lg max-w-md mx-auto">
+              Access the world's most advanced interactive labs and master exploitation with zero limits.
+            </p>
+          </div>
+        </section>
 
-          <!-- Plan Toggle -->
-          <section class="flex justify-center mb-8">
-            <div class="bg-surface-container p-1.5 rounded-full flex gap-1 items-center shadow-inner">
-              <button class="px-8 py-2.5 rounded-full bg-surface-container-lowest shadow-md font-black text-primary text-sm transition-all">Monthly</button>
-              <button class="px-8 py-2.5 rounded-full font-bold text-on-surface-variant text-sm hover:text-primary transition-all">Lifetime</button>
-            </div>
-          </section>
-
-          <!-- Plan Cards -->
-          <div class="space-y-6">
-            <!-- Free Plan -->
-            <div class="bg-surface-container-low rounded-xl p-6 relative overflow-hidden group">
-              <div class="flex justify-between items-start mb-6">
-                <div>
-                  <span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Perfect to Start</span>
-                  <h3 class="text-2xl font-bold mt-2">Free Plan</h3>
+        <!-- Pricing Grid -->
+        <section class="px-6 -mt-20 relative z-20 max-w-6xl mx-auto">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Daily Plan -->
+            <div class="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 hover:border-purple-500/50 transition-all group flex flex-col">
+              <div class="space-y-4 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 group-hover:text-purple-400 transition-colors">
+                  <span class="material-symbols-outlined">bolt</span>
                 </div>
-                <div class="text-right">
-                  <span class="text-3xl font-black">$0</span>
+                <div>
+                  <h3 class="text-xl font-black">Daily Pass</h3>
+                  <p class="text-xs text-white/40">24-hour full access</p>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-4xl font-black">$2</span>
+                  <span class="text-white/40 text-sm">/day</span>
                 </div>
               </div>
-              <ul class="space-y-4 mb-8">
-                <li class="flex items-center gap-3">
-                  <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
-                  <span class="text-sm font-medium">First 20 levels</span>
+              <ul class="space-y-4 mb-10 flex-grow">
+                <li class="flex items-center gap-3 text-xs font-bold text-white/60">
+                  <span class="material-symbols-outlined text-purple-500 text-sm">check</span>
+                  All Pro Labs
                 </li>
-                <li class="flex items-center gap-3">
-                  <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
-                  <span class="text-sm font-medium">Basic Bolt assistant</span>
-                </li>
-                <li class="flex items-center gap-3">
-                  <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
-                  <span class="text-sm font-medium">XP + streak system</span>
-                </li>
-                <li class="flex items-center gap-3">
-                  <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
-                  <span class="text-sm font-medium">Progress tracking</span>
+                <li class="flex items-center gap-3 text-xs font-bold text-white/60">
+                  <span class="material-symbols-outlined text-purple-500 text-sm">check</span>
+                  Instant Setup
                 </li>
               </ul>
-              <div class="w-full py-4 rounded-full font-black text-primary bg-primary/10 border-2 border-primary/20 flex items-center justify-center gap-3 shadow-inner">
-                <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1">check_circle</span>
-                Current Plan
-              </div>
+              <button class="w-full bg-white/10 hover:bg-white/20 text-white font-black py-4 rounded-2xl transition-all active:scale-95">
+                Get Access
+              </button>
             </div>
 
-            <!-- Pro Plan (Primary Focus) -->
-            <div class="relative rounded-xl p-1 bg-gradient-to-br from-primary to-primary-container shadow-2xl">
-              <div class="bg-surface-container-lowest rounded-[2.5rem] p-6 h-full">
-                <div class="flex justify-between items-start mb-6">
-                  <div>
-                    <div class="flex gap-2">
-                      <span class="bg-primary text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Best Value</span>
-                      <span class="bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Pro</span>
-                    </div>
-                    <h3 class="text-2xl font-bold mt-2">Pro Plan</h3>
-                  </div>
-                  <div class="text-right">
-                    <span class="text-3xl font-black text-primary">$4.99</span>
-                    <p class="text-[10px] font-bold text-on-surface-variant uppercase">per month</p>
-                  </div>
+            <!-- Weekly Plan -->
+            <div class="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 hover:border-purple-500/50 transition-all group flex flex-col">
+              <div class="space-y-4 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 group-hover:text-purple-400 transition-colors">
+                  <span class="material-symbols-outlined">calendar_view_week</span>
                 </div>
-                <ul class="grid grid-cols-1 gap-y-4 mb-8">
-                  <li class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1">stars</span>
-                    <span class="text-sm font-bold">All 60 levels</span>
-                  </li>
-                  <li class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1">bolt</span>
-                    <span class="text-sm font-bold">Bolt Pro (Advanced Hints)</span>
-                  </li>
-                  <li class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-lg">school</span>
-                    <span class="text-sm font-medium">'Teach me' mode</span>
-                  </li>
-                  <li class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-lg">all_inclusive</span>
-                    <span class="text-sm font-medium">Unlimited hints</span>
-                  </li>
-                  <li class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-lg">refresh</span>
-                    <span class="text-sm font-medium">Practice / review mode</span>
-                  </li>
-                  <li class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-lg">insights</span>
-                    <span class="text-sm font-medium">Retry insights</span>
-                  </li>
-                  <li class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-lg">emoji_events</span>
-                    <span class="text-sm font-medium">Achievements & Adv. XP</span>
-                  </li>
-                </ul>
-                <button onclick="alert('Upgrade feature coming soon!')" class="w-full py-5 rounded-full font-black text-white bg-gradient-to-br from-primary via-primary to-primary-container shadow-[0_12px_24px_-8px_rgba(76,64,223,0.5)] hover:shadow-[0_16px_32px_-8px_rgba(76,64,223,0.6)] hover:-translate-y-1 active:translate-y-0.5 active:shadow-inner transition-all duration-300 text-lg animate-shine">
-                  Upgrade Now
-                </button>
+                <div>
+                  <h3 class="text-xl font-black">Weekly</h3>
+                  <p class="text-xs text-white/40">Intense sprint access</p>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-4xl font-black">$7</span>
+                  <span class="text-white/40 text-sm">/week</span>
+                </div>
               </div>
+              <ul class="space-y-4 mb-10 flex-grow">
+                <li class="flex items-center gap-3 text-xs font-bold text-white/60">
+                  <span class="material-symbols-outlined text-purple-500 text-sm">check</span>
+                  All Pro Labs
+                </li>
+                <li class="flex items-center gap-3 text-xs font-bold text-white/60">
+                  <span class="material-symbols-outlined text-purple-500 text-sm">check</span>
+                  Exclusive Badges
+                </li>
+              </ul>
+              <button class="w-full bg-white/10 hover:bg-white/20 text-white font-black py-4 rounded-2xl transition-all active:scale-95">
+                Get Access
+              </button>
+            </div>
+
+            <!-- Monthly Plan (Featured) -->
+            <div class="bg-gradient-to-b from-purple-600 to-purple-900 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(124,58,237,0.3)] relative overflow-hidden flex flex-col scale-105 z-10">
+              <div class="absolute top-0 right-0 bg-white text-purple-900 text-[10px] font-black px-4 py-1.5 rounded-bl-2xl uppercase tracking-widest">Best Value</div>
+              <div class="space-y-4 mb-8 relative z-10">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-white">
+                  <span class="material-symbols-outlined">star</span>
+                </div>
+                <div>
+                  <h3 class="text-xl font-black">Monthly</h3>
+                  <p class="text-xs text-white/60">Most popular choice</p>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-4xl font-black">$12</span>
+                  <span class="text-white/60 text-sm">/month</span>
+                </div>
+              </div>
+              <ul class="space-y-4 mb-10 flex-grow relative z-10">
+                <li class="flex items-center gap-3 text-xs font-bold text-white">
+                  <span class="material-symbols-outlined text-white text-sm">check_circle</span>
+                  All Pro Labs
+                </li>
+                <li class="flex items-center gap-3 text-xs font-bold text-white">
+                  <span class="material-symbols-outlined text-white text-sm">check_circle</span>
+                  Priority Support
+                </li>
+                <li class="flex items-center gap-3 text-xs font-bold text-white">
+                  <span class="material-symbols-outlined text-white text-sm">check_circle</span>
+                  Early Access
+                </li>
+              </ul>
+              <button class="w-full bg-white text-purple-900 font-black py-4 rounded-2xl shadow-xl hover:scale-[1.02] transition-all active:scale-95 relative z-10">
+                Go Elite
+              </button>
+            </div>
+
+            <!-- Yearly Plan -->
+            <div class="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 hover:border-purple-500/50 transition-all group flex flex-col">
+              <div class="space-y-4 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 group-hover:text-purple-400 transition-colors">
+                  <span class="material-symbols-outlined">workspace_premium</span>
+                </div>
+                <div>
+                  <h3 class="text-xl font-black">Yearly</h3>
+                  <p class="text-xs text-white/40">Long-term mastery</p>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-4xl font-black">$99</span>
+                  <span class="text-white/40 text-sm">/year</span>
+                </div>
+              </div>
+              <ul class="space-y-4 mb-10 flex-grow">
+                <li class="flex items-center gap-3 text-xs font-bold text-white/60">
+                  <span class="material-symbols-outlined text-purple-500 text-sm">check</span>
+                  All Pro Labs
+                </li>
+                <li class="flex items-center gap-3 text-xs font-bold text-white/60">
+                  <span class="material-symbols-outlined text-purple-500 text-sm">check</span>
+                  2 Months Free
+                </li>
+                <li class="flex items-center gap-3 text-xs font-bold text-white/60">
+                  <span class="material-symbols-outlined text-purple-500 text-sm">check</span>
+                  Physical Swag Pack
+                </li>
+              </ul>
+              <button class="w-full bg-white/10 hover:bg-white/20 text-white font-black py-4 rounded-2xl transition-all active:scale-95">
+                Get Access
+              </button>
             </div>
           </div>
+        </section>
 
-          <!-- Level Packs (Secondary Option) -->
-          <section class="mt-16">
-            <h3 class="text-lg font-bold mb-6 px-2">Prefer one-time packs?</h3>
-            <div class="flex overflow-x-auto gap-4 no-scrollbar pb-6 px-2">
-              <!-- Web Pack -->
-              <div class="flex-shrink-0 w-44 bg-surface-container-low p-5 rounded-xl flex flex-col justify-between">
-                <div>
-                  <span class="material-symbols-outlined text-primary mb-3">language</span>
-                  <h4 class="font-bold text-sm">Web Pack</h4>
-                  <p class="text-[11px] text-on-surface-variant mt-1 leading-relaxed">Advanced Web vulnerabilities</p>
-                </div>
-                <div class="mt-6 flex items-center justify-between">
-                  <span class="font-bold text-on-surface">$5</span>
-                  <button onclick="alert('Web Pack added to your learning path!')" class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm hover:bg-primary hover:text-white hover:shadow-md active:scale-90 transition-all">
-                    <span class="material-symbols-outlined text-sm">add</span>
-                  </button>
-                </div>
+        <!-- Features Section -->
+        <section class="max-w-4xl mx-auto px-6 mt-32 space-y-12">
+          <div class="text-center space-y-4">
+            <h2 class="text-3xl font-black tracking-tight">Why Choose Elite?</h2>
+            <div class="h-1 w-12 bg-purple-500 mx-auto rounded-full"></div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div class="text-center space-y-4">
+              <div class="w-16 h-16 mx-auto bg-purple-500/10 rounded-3xl flex items-center justify-center text-purple-400">
+                <span class="material-symbols-outlined text-3xl">terminal</span>
               </div>
-              <!-- Exploitation Pack -->
-              <div class="flex-shrink-0 w-44 bg-surface-container-low p-5 rounded-xl flex flex-col justify-between">
-                <div>
-                  <span class="material-symbols-outlined text-primary mb-3">terminal</span>
-                  <h4 class="font-bold text-sm">Exploitation Pack</h4>
-                  <p class="text-[11px] text-on-surface-variant mt-1 leading-relaxed">Memory & logic bypasses</p>
-                </div>
-                <div class="mt-6 flex items-center justify-between">
-                  <span class="font-bold text-on-surface">$5</span>
-                  <button onclick="alert('Exploitation Pack added to your learning path!')" class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm hover:bg-primary hover:text-white hover:shadow-md active:scale-90 transition-all">
-                    <span class="material-symbols-outlined text-sm">add</span>
-                  </button>
-                </div>
-              </div>
-              <!-- Full Unlock -->
-              <div class="flex-shrink-0 w-44 bg-surface-container-low border-2 border-primary-fixed-dim/30 p-5 rounded-xl flex flex-col justify-between">
-                <div>
-                  <span class="material-symbols-outlined text-primary mb-3">lock_open</span>
-                  <h4 class="font-bold text-sm">Full Unlock</h4>
-                  <p class="text-[11px] text-on-surface-variant mt-1 leading-relaxed">Lifetime access to all</p>
-                </div>
-                <div class="mt-6 flex items-center justify-between">
-                  <span class="font-bold text-on-surface">$15</span>
-                  <button onclick="alert('Lifetime access unlocked!')" class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20 hover:scale-110 hover:shadow-primary/40 active:scale-90 transition-all">
-                    <span class="material-symbols-outlined text-sm">add</span>
-                  </button>
-                </div>
-              </div>
+              <h4 class="font-black">Unlimited Terminal</h4>
+              <p class="text-sm text-white/40 font-medium">No session limits. Practice as long as you need to master the exploit.</p>
             </div>
-          </section>
+            <div class="text-center space-y-4">
+              <div class="w-16 h-16 mx-auto bg-purple-500/10 rounded-3xl flex items-center justify-center text-purple-400">
+                <span class="material-symbols-outlined text-3xl">military_tech</span>
+              </div>
+              <h4 class="font-black">Elite Certifications</h4>
+              <p class="text-sm text-white/40 font-medium">Earn verifiable certificates for every path you complete.</p>
+            </div>
+            <div class="text-center space-y-4">
+              <div class="w-16 h-16 mx-auto bg-purple-500/10 rounded-3xl flex items-center justify-center text-purple-400">
+                <span class="material-symbols-outlined text-3xl">groups</span>
+              </div>
+              <h4 class="font-black">Private Discord</h4>
+              <p class="text-sm text-white/40 font-medium">Join a community of pro researchers and get direct mentorship.</p>
+            </div>
+          </div>
+        </section>
 
-          <!-- Footer Indicators -->
-          <footer class="mt-12 mb-16 text-center">
-            <div class="flex justify-center items-center gap-6 mb-4">
-              <div class="flex items-center gap-1">
-                <span class="material-symbols-outlined text-[16px] text-outline">lock</span>
-                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Secure Checkout</span>
-              </div>
-              <div class="flex items-center gap-1">
-                <span class="material-symbols-outlined text-[16px] text-outline">verified_user</span>
-                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">256-bit Encryption</span>
-              </div>
-            </div>
-            <div class="flex justify-center gap-4 opacity-40 grayscale hover:grayscale-0 transition-all">
-              <span class="material-symbols-outlined">contactless</span>
-              <span class="material-symbols-outlined">credit_card</span>
-              <span class="material-symbols-outlined">account_balance_wallet</span>
-            </div>
-          </footer>
-        </main>
+        <!-- Trust Badges -->
+        <footer class="mt-32 py-12 px-8 text-center space-y-8 border-t border-white/5">
+          <div class="flex items-center justify-center gap-12 opacity-20 grayscale">
+            <span class="material-symbols-outlined text-4xl">verified_user</span>
+            <span class="material-symbols-outlined text-4xl">payments</span>
+            <span class="material-symbols-outlined text-4xl">lock</span>
+          </div>
+          <p class="text-[10px] text-white/40 font-black uppercase tracking-[0.2em] max-w-xs mx-auto">Enterprise Grade Security • SSL Encrypted • Stripe Verified</p>
+        </footer>
       </div>
     `;
   }

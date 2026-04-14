@@ -9,7 +9,6 @@ export class Router {
     this.containerId = containerId;
     this.container = document.getElementById(containerId);
     this.currentPath = null;
-    this.isSplashHandled = false;
 
     window.addEventListener('popstate', () => this.handleRoute());
     
@@ -40,38 +39,55 @@ export class Router {
     }
 
     const path = window.location.pathname;
-    const isPC = window.innerWidth >= 768;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
+    const isPC = !isMobile;
     const { state } = await import('./state.js');
 
     // 1. Platform-Specific Route Protection
     if (isPC) {
-      // PC: Block mobile-only auth pages - redirect to QR login
+      // PC: Block mobile-only auth pages
       if (path === '/login' || path === '/signup') {
-        window.history.replaceState({}, '', '/qr-login');
-        await this.handleRoute();
+        this.navigate('/qr-login');
         return;
       }
     } else {
-      // Mobile: Block PC-only QR login page - redirect to login
+      // Mobile: Block PC-only QR login page
       if (path === '/qr-login') {
-        window.history.replaceState({}, '', '/login');
-        await this.handleRoute();
+        this.navigate('/login');
         return;
       }
     }
 
-    const publicRoutes = ['/splash', '/login', '/signup', '/qr-login'];
+    const publicRoutes = ['/login', '/signup', '/splash', '/qr-login', '/onboarding'];
     const isPublic = publicRoutes.includes(path);
 
-    // 2. Authentication Guard - only for non-public routes
-    if (!state.isAuthenticated && !isPublic) {
-      const defaultLogin = isPC ? '/qr-login' : '/login';
-      window.history.replaceState({}, '', defaultLogin);
-      await this.handleRoute();
+    // 2. Authentication Guard
+    if (!state.isAuthReady) {
+      // Show a loading state or just wait
+      this.container.innerHTML = `
+        <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p class="text-on-surface-variant font-medium">Verifying Session...</p>
+        </div>
+      `;
       return;
     }
 
-    // 3. Authenticated Redirect (prevent login loops)
+    if (!state.isAuthenticated && !isPublic) {
+      const defaultLogin = isPC ? '/qr-login' : '/login';
+      window.history.replaceState({}, '', defaultLogin);
+      this.handleRoute();
+      return;
+    }
+
+    // 3. Onboarding Guard
+    const onboardingComplete = localStorage.getItem('onboarding_complete') === 'true';
+    if (state.isAuthenticated && !onboardingComplete && path !== '/onboarding') {
+      this.navigate('/onboarding');
+      return;
+    }
+
+    // 4. Authenticated Redirect (prevent login loops)
     if (state.isAuthenticated && (path === '/login' || path === '/signup' || path === '/qr-login')) {
       this.navigate('/');
       return;
@@ -87,12 +103,18 @@ export class Router {
       params.id = path.split('/')[2];
     }
 
-    const route = this.routes[routeKey] || this.routes['/404'] || this.routes['/'];
+    const route = this.routes[routeKey] || this.routes['/'];
     
+    if (!this.routes[routeKey] && routeKey !== '/') {
+      console.warn(`Route ${routeKey} not found, falling back to home.`);
+      window.history.replaceState({}, '', '/');
+    }
+
     this.currentPath = path;
     
     try {
       const page = await route(params);
+      window.app.currentPage = page;
       this.container.innerHTML = page.render();
       if (page.afterRender) page.afterRender();
       
@@ -108,6 +130,19 @@ export class Router {
     }
   }
 
+  async update() {
+    if (window.app.currentPage && this.container) {
+      this.container.innerHTML = window.app.currentPage.render();
+      if (window.app.currentPage.afterRender) window.app.currentPage.afterRender();
+      
+      // Trigger global UI update for shell visibility
+      const event = new CustomEvent('routeChange', { detail: { path: window.location.pathname } });
+      document.dispatchEvent(event);
+    } else {
+      await this.handleRoute();
+    }
+  }
+
   updateActiveLinks(path) {
     document.querySelectorAll('[data-link]').forEach(link => {
       if (link.getAttribute('href') === path) {
@@ -120,21 +155,5 @@ export class Router {
 
   init() {
     this.handleRoute();
-  }
-
-  // Handle splash screen transition with fixed timeout
-  handleSplashTransition(router, isPC) {
-    if (this.isSplashHandled) return;
-    this.isSplashHandled = true;
-    
-    // Fixed 1.5 second splash duration - no async dependencies
-    setTimeout(() => {
-      const { state } = window;
-      if (!state || !state.isAuthenticated) {
-        router.navigate(isPC ? '/qr-login' : '/login');
-      } else {
-        router.navigate('/');
-      }
-    }, 1500);
   }
 }

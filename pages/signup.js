@@ -1,7 +1,11 @@
 export class Signup {
   render() {
     return `
-      <div class="auth-page-bg container page animate-fade-in flex flex-col items-center justify-center relative overflow-hidden">
+      <div class="container animate-fade-in flex flex-col items-center justify-center relative overflow-hidden">
+        <!-- Background Decorative Glows -->
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-container/5 rounded-full blur-[120px] pointer-events-none"></div>
+
         <!-- Top Bar Component -->
         <header class="w-full flex items-center justify-between py-6 absolute top-0 z-10">
           <button onclick="window.history.back()" class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-variant transition-colors active:scale-90">
@@ -9,7 +13,7 @@ export class Signup {
           </button>
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1">shield_with_heart</span>
-            <span class="text-xl font-extrabold tracking-tight bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent">ByteLearn</span>
+            <span class="text-xl font-extrabold tracking-tight bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent">ByteLab</span>
           </div>
           <div class="w-12"></div>
         </header>
@@ -63,7 +67,7 @@ export class Signup {
             </label>
 
             <!-- Sign Up Button -->
-            <button class="w-full py-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold text-lg shadow-[0_8px_20px_-6px_rgba(76,64,223,0.4)] active:scale-95 transition-all mt-2">
+            <button onclick="window.app.loginWithGoogle()" class="w-full py-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold text-lg shadow-[0_8px_20px_-6px_rgba(76,64,223,0.4)] active:scale-95 transition-all mt-2">
               Sign Up
             </button>
             
@@ -71,26 +75,11 @@ export class Signup {
               <img alt="Google" class="w-5 h-5" src="https://dropshare.42web.io/1/files/UfdnhaRxF6.png">
               Continue with Google
             </button>
+            <button onclick="window.app.bypassLogin()" class="w-full py-4 rounded-xl bg-primary/10 text-primary font-bold flex items-center justify-center gap-3 border border-primary/20 active:scale-95 transition-all">
+              <span class="material-symbols-outlined">science</span>
+              Simulation Bypass
+            </button>
           </section>
-
-          <!-- Social Signup Divider -->
-          <div class="flex items-center gap-4 px-2">
-            <div class="h-[1px] flex-1 bg-outline-variant/30"></div>
-            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Or sign up with</span>
-            <div class="h-[1px] flex-1 bg-outline-variant/30"></div>
-          </div>
-
-          <!-- Social Buttons -->
-          <div class="grid grid-cols-2 gap-4">
-            <button class="flex items-center justify-center gap-3 py-4 rounded-xl bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container-low transition-all active:scale-95">
-              <img alt="Google" class="w-6 h-6" src="https://dropshare.42web.io/1/files/UfdnhaRxF6.png">
-              <span class="font-bold text-on-surface">Google</span>
-            </button>
-            <button class="flex items-center justify-center gap-3 py-4 rounded-xl bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container-low transition-all active:scale-95">
-              <img alt="Facebook" class="w-6 h-6 rounded-full object-contain" src="https://dropshare.42web.io/1/files/UfwhO8eTYD.png">
-              <span class="font-bold text-on-surface">Facebook</span>
-            </button>
-          </div>
 
           <!-- Login Link -->
           <footer class="mt-4 text-center">

@@ -12,8 +12,9 @@
     <div id="app-root"></div>
 
     <script type="module">
-        const isPC = window.innerWidth >= 768;
-        const root = document.getElementById('app-root');
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
+    const isPC = !isMobile;
+    const root = document.getElementById('app-root');
         
         if (isPC) {
             console.log('Initializing PC Interface...');
@@ -22,7 +23,7 @@
                     <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-8 py-4 flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-primary text-3xl font-bold">shield_with_heart</span>
-                            <span class="font-black tracking-tighter text-2xl">ByteLearn</span>
+                            <span class="font-black tracking-tighter text-2xl app-name">ByteLearn</span>
                         </div>
                         <div class="flex items-center gap-6">
                             <div id="user-stats" class="text-xs font-black uppercase tracking-widest text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-lg"></div>
@@ -39,10 +40,6 @@
                             <span class="material-symbols-outlined text-2xl">route</span>
                             <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Paths</span>
                         </a>
-                        <a href="/map" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                            <span class="material-symbols-outlined text-2xl">map</span>
-                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Map</span>
-                        </a>
                         <a href="/bolt" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
                             <span class="material-symbols-outlined text-2xl">bolt</span>
                             <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Bolt</span>
@@ -51,6 +48,10 @@
                         <a href="/profile" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
                             <span class="material-symbols-outlined text-2xl">person</span>
                             <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Profile</span>
+                        </a>
+                        <a href="/upgrade" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                            <span class="material-symbols-outlined text-2xl">workspace_premium</span>
+                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Premium</span>
                         </a>
                     </nav>
                 </div>
@@ -63,32 +64,28 @@
                     <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-4 py-3 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-primary font-bold">shield_with_heart</span>
-                            <span class="font-black tracking-tight text-lg">ByteLearn</span>
+                            <span class="font-black tracking-tight text-lg app-name">ByteLearn</span>
                         </div>
                         <div id="user-stats" class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant bg-surface-container px-2 py-1 rounded-md"></div>
                     </header>
                     <main id="main-content" class="flex-grow pb-24"></main>
-                    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-lg border-t border-outline-variant px-6 py-3 flex items-center justify-between">
+                    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-lg border-t border-outline-variant px-6 py-3 flex items-center justify-around">
                         <a href="/" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
                             <span class="material-symbols-outlined">home</span>
                             <span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
-                        </a>
-                        <a href="/profile" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">person</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
                         </a>
                         <div class="relative -top-6">
                             <button onclick="const sid = prompt('Enter Session ID:'); if(sid) window.app.approveSession(sid)" class="w-14 h-14 rounded-full bg-primary text-on-primary shadow-lg shadow-primary/40 flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
                                 <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
                             </button>
                         </div>
-                        <a href="/progress" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">analytics</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Stats</span>
+                        <a href="/profile" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">person</span>
+                            <span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
                         </a>
-                        <a href="/settings" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">settings</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Settings</span>
+                        <a href="/upgrade" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">workspace_premium</span>
+                            <span class="text-[10px] font-bold uppercase tracking-tighter">Premium</span>
                         </a>
                     </nav>
                 </div>

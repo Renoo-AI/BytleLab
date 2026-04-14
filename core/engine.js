@@ -13,53 +13,63 @@ export const engine = {
     console.log(`Challenge ${challengeId} started.`);
   },
 
+  async getChallenge(challengeId) {
+    const challenges = await this.loadChallenges();
+    return challenges.find(c => c.id === challengeId);
+  },
+
   async loadChallenges() {
-    const response = await fetch('/challenges/challenges.json');
-    return await response.json();
+    const { firestore } = await import('./firebase.js');
+    return await firestore.getChallenges();
   },
 
   async validateFlag(challengeId, flag) {
     this._attempts++;
     
-    // Use a non-global way to get user ID
     const { state } = await import('./state.js');
     if (!state.isAuthenticated || !state.user) return false;
 
-    // Server-side validation simulation via Firestore Submissions
-    const { firestore } = await import('./firebase.js');
-    const isValid = await firestore.submitChallenge(state.user.uid, challengeId, flag);
-    
-    if (isValid) {
-      this._finalizeCompletion(challengeId);
+    // Progression check: Ensure previous level is completed
+    const levels = [
+      'web-basics-1', 'web-basics-2', 'web-basics-3',
+      'input-tampering-1', 'input-tampering-2'
+    ];
+    const currentIndex = levels.indexOf(challengeId);
+    if (currentIndex > 0) {
+      const prevId = levels[currentIndex - 1];
+      if (!state.user.completed?.includes(prevId)) {
+        console.warn('Progression violation: Previous level not completed.');
+        return false;
+      }
     }
-    
-    return isValid;
+
+    const { auth } = await import('./firebase.js');
+    const idToken = await auth.currentUser.getIdToken();
+
+    try {
+      const response = await fetch('/api/validate-challenge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challengeId, flag, idToken })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        this._finalizeCompletion(challengeId);
+        return true;
+      } else {
+        console.error('Validation failed:', result.error);
+        return false;
+      }
+    } catch (error) {
+      console.error('API Error:', error);
+      return false;
+    }
   },
 
   _finalizeCompletion(challengeId) {
-    const duration = (Date.now() - this._startTime) / 1000;
-    
-    // Anti-cheat: If solved in less than 2 seconds, it's suspicious
-    if (duration < 2) {
-      console.warn('Suspiciously fast completion detected.');
-    }
-
-    // Update local state (Firestore listener will also sync this)
-    import('./state.js').then(({ state }) => {
-      if (!state.completed.includes(challengeId)) {
-        const newCompleted = [...state.completed, challengeId];
-        const newXp = state.user.xp + 100;
-        const newFlags = state.user.flags + 1;
-        
-        // Update Firestore (Source of Truth)
-        import('./firebase.js').then(({ firestore }) => {
-          firestore.saveUserData(state.user.uid, {
-            completed: newCompleted,
-            xp: newXp,
-            flags: newFlags
-          });
-        });
-      }
-    });
+    // Local state will be updated by the Firestore listener automatically
+    console.log(`Challenge ${challengeId} validated by backend.`);
   }
 };

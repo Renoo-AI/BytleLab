@@ -1,18 +1,25 @@
 export class Login {
   render() {
     return `
-      <div class="auth-page-bg container animate-fade-in flex flex-col items-center min-h-screen relative overflow-hidden">
+      <div class="container animate-fade-in flex flex-col items-center min-h-screen relative overflow-hidden">
+        <!-- Background Decorative Glows -->
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-container/5 rounded-full blur-[120px] pointer-events-none"></div>
+
         <!-- Top App Bar -->
         <header class="w-full top-0 flex items-center justify-center px-6 py-8 relative z-10">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-3xl text-primary" style="font-variation-settings: 'FILL' 1">shield_with_heart</span>
-            <span class="text-2xl font-bold bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent tracking-tight leading-relaxed font-headline">ByteLearn</span>
+            <span class="text-2xl font-bold bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent tracking-tight leading-relaxed font-headline">ByteLab</span>
           </div>
         </header>
 
         <main class="w-full px-6 pb-12 flex flex-col grow justify-center">
           <!-- Hero Branding Area -->
-          <div class="relative mb-10 text-center">
+          <div class="relative mb-10 text-center flex flex-col items-center">
+            <div class="w-32 h-32 mb-4 animate-bounce-slow">
+              <img src="https://dropshare.42web.io/1/files/yCYAur1GZq.png" alt="Welcome Back Mascot" class="w-full h-full object-contain">
+            </div>
             <h1 class="text-4xl font-extrabold text-on-surface tracking-tight mb-2">Welcome Back</h1>
             <p class="text-on-surface-variant font-medium">Continue your journey to mastery.</p>
           </div>
@@ -57,6 +64,10 @@ export class Login {
               <button onclick="window.app.loginWithGoogle()" class="flex items-center justify-center gap-3 bg-surface-container-low py-4 rounded-xl font-bold text-on-surface active:scale-[0.96] transition-transform">
                 <img alt="Google" class="w-5 h-5" src="https://dropshare.42web.io/1/files/UfdnhaRxF6.png">
                 Sign in with Google
+              </button>
+              <button onclick="window.app.bypassLogin()" class="flex items-center justify-center gap-3 bg-primary/10 py-4 rounded-xl font-bold text-primary active:scale-[0.96] transition-transform border border-primary/20">
+                <span class="material-symbols-outlined">science</span>
+                Simulation Bypass
               </button>
             </div>
           </div>

@@ -1,41 +1,90 @@
 {
   "entities": {
     "User": {
-      "title": "User",
-      "description": "User profile and progress data",
+      "title": "User Profile",
+      "description": "Stores user progress, XP, and profile information.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
         "name": { "type": "string" },
         "email": { "type": "string" },
-        "avatar": { "type": "string" },
-        "rank": { "type": "string" },
-        "level": { "type": "number" },
+        "photoURL": { "type": "string" },
         "xp": { "type": "number" },
-        "flags": { "type": "number" }
-      },
-      "required": ["uid", "name"]
-    },
-    "Session": {
-      "title": "Session",
-      "description": "Temporary session for QR login",
-      "type": "object",
-      "properties": {
-        "status": { "type": "string", "enum": ["pending", "approved", "expired"] },
-        "userId": { "type": "string" },
+        "isPublic": { "type": "boolean" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "completedChallenges": { "type": "array", "items": { "type": "string" } },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["status", "createdAt"]
+      "required": ["uid", "name", "email"]
+    },
+    "Session": {
+      "title": "QR Login Session",
+      "description": "Temporary session for QR code login flow.",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["pending", "approved"] },
+        "userId": { "type": "string" },
+        "userData": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "AppSetting": {
+      "title": "App Settings",
+      "description": "Global configuration for the platform.",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string" },
+        "description": { "type": "string" },
+        "version": { "type": "string" },
+        "maintenanceMode": { "type": "boolean" }
+      }
+    },
+    "Challenge": {
+      "title": "Challenge",
+      "description": "A technical challenge for users to solve.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "hint": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["Easy", "Medium", "Hard"] },
+        "points": { "type": "number" },
+        "order": { "type": "number" }
+      },
+      "required": ["id", "title", "description", "difficulty", "points"]
+    },
+    "Flag": {
+      "title": "Challenge Flag",
+      "description": "The secret flag for a challenge.",
+      "type": "object",
+      "properties": {
+        "challengeId": { "type": "string" },
+        "flag": { "type": "string" }
+      },
+      "required": ["challengeId", "flag"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": "User",
-      "description": "User profile documents"
+      "description": "User profile documents."
     },
     "/sessions/{sessionId}": {
       "schema": "Session",
-      "description": "Temporary QR login sessions"
+      "description": "QR login session documents."
+    },
+    "/settings/global": {
+      "schema": "AppSetting",
+      "description": "Global application settings."
+    },
+    "/challenges/{challengeId}": {
+      "schema": "Challenge",
+      "description": "Challenge metadata."
+    },
+    "/flags/{challengeId}": {
+      "schema": "Flag",
+      "description": "Secret flags (Admin only)."
     }
   }
 }

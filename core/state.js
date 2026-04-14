@@ -5,34 +5,23 @@
 
 // Internal state that is not directly exported as a mutable object
 let _state = {
+  isAuthReady: false,
   isAuthenticated: false,
   user: null,
-  completed: [],
+  appName: 'ByteLearn',
+  settings: {},
   progress: {
-    currentPath: 'Web Basics',
+    currentPathId: 'web-basics',
     paths: [
       { id: 'web-basics', title: 'Web Basics', status: 'in-progress', progress: 0, lessons: 12, difficulty: 'Easy', icon: 'language' },
       { id: 'input-tampering', title: 'Input Tampering', status: 'locked', progress: 0, lessons: 8, difficulty: 'Medium', icon: 'keyboard' },
       { id: 'file-discovery', title: 'File Discovery', status: 'locked', progress: 0, lessons: 15, difficulty: 'Medium', icon: 'folder_open' },
       { id: 'web-attacks', title: 'Web Attacks', status: 'locked', progress: 0, lessons: 24, difficulty: 'Hard', icon: 'security' }
     ]
-  },
-  settings: {
-    theme: 'light',
-    notifications: true
   }
 };
 
-// Export a read-only proxy of the state to prevent direct mutation
-export const state = new Proxy(_state, {
-  get: (target, prop) => {
-    return target[prop];
-  },
-  set: () => {
-    console.error('Direct state mutation is forbidden. Use updateState().');
-    return false;
-  }
-});
+export const state = _state;
 
 export function updateState(path, value) {
   const keys = path.split('.');
@@ -43,21 +32,10 @@ export function updateState(path, value) {
     current = current[keys[i]];
   }
   
-  const lastKey = keys[keys.length - 1];
-  
-  // Basic validation
-  if (path === 'completed' && !Array.isArray(value)) return;
-
-  // Only update if value changed to prevent loops
-  if (JSON.stringify(current[lastKey]) === JSON.stringify(value)) return;
-
-  current[lastKey] = value;
-  
+  current[keys[keys.length - 1]] = value;
   document.dispatchEvent(new CustomEvent('stateChange', { detail: { path, value } }));
 }
 
 export function resetState(newState) {
-  if (newState) {
-    _state = { ..._state, ...newState };
-  }
+  Object.assign(_state, newState);
 }

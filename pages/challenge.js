@@ -11,37 +11,38 @@ export class Challenge {
   }
 
   async onMount() {
-    // In a real app, we'd fetch challenge data from Firestore
-    const challenges = {
-      'web-basics-1': {
-        title: 'View Source',
-        description: 'The flag is hidden in the HTML source code of this page. Can you find it?',
-        hint: 'Right-click and select "View Page Source" or use DevTools (F12).',
-        difficulty: 'Easy',
-        points: 100
-      },
-      'web-basics-2': {
-        title: 'Hidden Comments',
-        description: 'Developers often leave sensitive information in HTML comments. Find the comment containing the flag.',
-        hint: 'Look for <!-- ... --> tags in the source.',
-        difficulty: 'Easy',
-        points: 100
-      },
-      'web-basics-3': {
-        title: 'Robots.txt',
-        description: 'The robots.txt file tells search engines which pages they can or cannot visit. Sometimes it reveals hidden directories.',
-        hint: 'Try navigating to /robots.txt',
-        difficulty: 'Easy',
-        points: 100
-      }
-    };
+    // 1. Path Lock Check
+    const pathId = this.id.split('-').slice(0, 2).join('-'); // e.g., web-basics-1 -> web-basics
+    const path = state.progress.paths.find(p => p.id === pathId);
+    if (path && path.status === 'locked') {
+      window.app.router.navigate('/paths');
+      return;
+    }
 
-    this.challenge = challenges[this.id] || {
-      title: 'Unknown Challenge',
-      description: 'This challenge does not exist yet.',
-      difficulty: '???',
-      points: 0
-    };
+    // 2. Progression check
+    const levels = [
+      'web-basics-1', 'web-basics-2', 'web-basics-3',
+      'input-tampering-1', 'input-tampering-2'
+    ];
+    const currentIndex = levels.indexOf(this.id);
+    if (currentIndex > 0) {
+      const prevId = levels[currentIndex - 1];
+      if (!state.user.completed?.includes(prevId)) {
+        window.app.router.navigate('/paths');
+        return;
+      }
+    }
+
+    this.challenge = await engine.getChallenge(this.id);
+
+    if (!this.challenge) {
+      this.challenge = {
+        title: 'Unknown Challenge',
+        description: 'This challenge does not exist yet.',
+        difficulty: '???',
+        points: 0
+      };
+    }
 
     engine.startChallenge(this.id);
     this.updateUI();
@@ -90,15 +91,15 @@ export class Challenge {
     if (this.success) {
       return `
         <div class="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
-          <div class="w-24 h-24 bg-tertiary-container rounded-full flex items-center justify-center shadow-xl animate-bounce">
-            <span class="material-symbols-outlined text-on-tertiary-container text-6xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+          <div class="w-48 h-48 flex items-center justify-center animate-bounce">
+            <img src="https://dropshare.42web.io/1/files/Y1SVHlnZRG.png" alt="Success Mascot" class="w-full h-full object-contain">
           </div>
           <div class="space-y-2">
             <h2 class="text-3xl font-black text-on-surface">Challenge Solved!</h2>
             <p class="text-on-surface-variant font-medium">You've earned ${this.challenge.points} XP and 1 Flag.</p>
           </div>
-          <a href="/map" data-link class="btn-primary w-full max-w-xs">
-            <span>Back to Map</span>
+          <a href="/paths" data-link class="btn-primary w-full max-w-xs">
+            <span>Back to Paths</span>
             <span class="material-symbols-outlined">arrow_forward</span>
           </a>
         </div>

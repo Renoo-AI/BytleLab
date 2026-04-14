@@ -12,80 +12,88 @@ export class Profile {
     }
 
     return `
-      <div class="container animate-fade-in space-y-8">
-        <!-- Profile Header Section -->
-        <section class="relative flex flex-col items-center text-center">
-          <div class="relative group">
-            <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-primary to-primary-container shadow-xl">
-              <div class="w-full h-full rounded-full bg-surface-container-lowest flex items-center justify-center overflow-hidden">
-                <img src="${state.user.avatar}" alt="User Profile" class="w-full h-full object-cover">
+      <div class="container animate-fade-in space-y-10 py-8">
+        <!-- Profile Header -->
+        <section class="relative">
+          <div class="bg-surface-container-low rounded-2xl p-8 flex flex-col items-center text-center space-y-4 overflow-hidden relative">
+            <!-- Mascot Background -->
+            <div class="absolute -top-6 -right-6 w-32 h-32 opacity-10 rotate-12">
+              <img src="https://dropshare.42web.io/1/files/UlGS73JZET.png" alt="Rich Mascot" class="w-full h-full object-contain">
+            </div>
+            
+            <div class="relative">
+              <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-primary to-primary-container shadow-xl">
+                <div class="w-full h-full rounded-full bg-surface-container-lowest flex items-center justify-center overflow-hidden border-4 border-surface">
+                  <img src="${state.user.avatar}" alt="User Profile" class="w-full h-full object-cover">
+                </div>
+              </div>
+              <div class="absolute -bottom-2 -right-2 bg-primary text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg border-2 border-surface">
+                LVL ${state.user.level}
               </div>
             </div>
-            <div class="absolute -bottom-2 -right-2 bg-tertiary-container text-on-tertiary-container text-xs font-bold px-3 py-1 rounded-full shadow-md border-4 border-surface">
-              Rank ${state.user.level}
+
+            <div class="space-y-1">
+              <h2 class="text-2xl font-black tracking-tight text-on-surface">${state.user.name}</h2>
+              <p class="text-sm text-on-surface-variant font-medium">${state.user.rank}</p>
+            </div>
+
+            <div class="flex gap-2">
+              <button class="bg-primary text-white text-xs font-bold px-6 py-2.5 rounded-full shadow-[0_4px_0_#32284f] active:translate-y-1 transition-all">
+                Edit Profile
+              </button>
+              <button class="bg-surface-container-highest text-on-surface-variant text-xs font-bold px-6 py-2.5 rounded-full active:translate-y-1 transition-all">
+                Settings
+              </button>
             </div>
           </div>
-          <div class="mt-6 space-y-1">
-            <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">${state.user.name}</h2>
-            <p class="text-on-surface-variant font-medium">${state.user.rank}</p>
+        </section>
+
+        <!-- Stats Grid -->
+        <section class="grid grid-cols-3 gap-4">
+          <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center">
+            <span class="text-xl font-black text-primary">${state.user.xp}</span>
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">XP</span>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center">
+            <span class="text-xl font-black text-secondary">${state.user.flags || 0}</span>
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Flags</span>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center">
+            <span class="text-xl font-black text-tertiary">${state.completed?.length || 0}</span>
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Missions</span>
           </div>
         </section>
 
-        <!-- Stats Summary -->
-        <section class="grid grid-cols-2 gap-4">
-          <div class="bg-surface-container-low p-6 rounded-xl flex flex-col items-center justify-center space-y-1">
-            <span class="text-primary font-black text-2xl tracking-tight">${state.user.xp}</span>
-            <span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Total XP</span>
-          </div>
-          <div class="bg-surface-container-low p-6 rounded-xl flex flex-col items-center justify-center space-y-1">
-            <span class="text-primary font-black text-2xl tracking-tight">${state.user.flags}</span>
-            <span class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Total Flags</span>
-          </div>
-        </section>
-
-        <!-- Achievements Section -->
+        <!-- Achievements -->
         <section class="space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-on-surface">Achievements</h3>
-            <button class="text-primary text-sm font-bold">View All</button>
+          <div class="flex items-center justify-between px-2">
+            <h3 class="font-bold text-on-surface">Achievements</h3>
+            <span class="text-xs font-bold text-primary">View All</span>
           </div>
-          <div class="flex overflow-x-auto gap-4 no-scrollbar pb-2">
+          <div class="grid grid-cols-4 gap-4">
             ${this.renderAchievements()}
           </div>
         </section>
 
-        <!-- Action List -->
-        <section class="bg-surface-container-lowest rounded-xl p-2 space-y-1">
-          <button onclick="const sid = prompt('Enter Session ID from PC:'); if(sid) window.app.approveSession(sid)" class="w-full flex items-center justify-between p-4 bg-primary/5 hover:bg-primary/10 transition-colors rounded-lg group border border-primary/10">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined">qr_code_scanner</span>
+        <!-- Account Actions -->
+        <section class="space-y-3">
+          <button class="w-full flex items-center justify-between p-4 rounded-xl bg-surface-container-low group">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">qr_code_2</span>
               </div>
-              <div class="text-left">
-                <span class="block font-bold text-primary">Scan PC QR</span>
-                <span class="text-[10px] text-primary/60 uppercase font-black tracking-widest">Authorize Session</span>
-              </div>
+              <span class="font-bold text-on-surface">Login on PC</span>
             </div>
-            <span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+            <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
           </button>
-          
-          <button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors rounded-lg group">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined">person_edit</span>
+          <button class="w-full flex items-center justify-between p-4 rounded-xl bg-surface-container-low group">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant group-hover:bg-error/10 group-hover:text-error transition-colors">
+                <span class="material-symbols-outlined">logout</span>
               </div>
-              <span class="font-semibold text-on-surface">Edit Profile</span>
+              <span class="font-bold text-on-surface">Logout</span>
             </div>
-            <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
-          </button>
-          <button class="w-full flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors rounded-lg group">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined">military_tech</span>
-              </div>
-              <span class="font-semibold text-on-surface">Achievements</span>
-            </div>
-            <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+            <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
           </button>
         </section>
       </div>
@@ -94,18 +102,20 @@ export class Profile {
 
   renderAchievements() {
     const achievements = [
-      { id: 'first-flag', title: 'First Flag', icon: 'flag', color: 'tertiary' },
-      { id: 'streak-7', title: '7-Day Streak', icon: 'bolt', color: 'secondary' },
-      { id: 'web-novice', title: 'Web Novice', icon: 'public', color: 'primary' }
+      { id: 'first-flag', title: 'First Contact', icon: 'flag' },
+      { id: 'streak-7', title: 'Consistent', icon: 'bolt' },
+      { id: 'web-novice', title: 'Web Novice', icon: 'public' },
+      { id: 'locked', title: 'Locked', icon: 'lock', locked: true }
     ];
 
     return achievements.map(ach => `
-      <div class="flex-shrink-0 w-28 flex flex-col items-center space-y-2">
-        <div class="w-20 h-20 rounded-full bg-${ach.color}-container/30 flex items-center justify-center">
-          <span class="material-symbols-outlined text-${ach.color} text-4xl" style="font-variation-settings: 'FILL' 1;">${ach.icon}</span>
+      <div class="flex flex-col items-center gap-2">
+        <div class="w-14 h-14 rounded-2xl ${ach.locked ? 'bg-surface-container-highest/50 grayscale' : 'bg-surface-container-highest'} flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined ${ach.locked ? 'text-xl opacity-30' : 'text-2xl'}">${ach.icon}</span>
         </div>
-        <span class="text-[11px] font-bold text-center leading-tight">${ach.title}</span>
+        <span class="text-[8px] font-black text-center uppercase tracking-widest text-on-surface-variant truncate w-full">${ach.title}</span>
       </div>
     `).join('');
+
   }
 }

@@ -1,7 +1,20 @@
+import { firestore } from '../core/firebase.js';
+import { state } from '../core/state.js';
+import * as qrcodeModule from 'qrcode-generator';
+
 export class QRLogin {
   constructor() {
     this.sessionId = Math.random().toString(36).substring(2, 15);
     this.unsubscribe = null;
+    // Handle different import styles
+    this.qrcode = qrcodeModule.default || qrcodeModule;
+    if (typeof this.qrcode !== 'function' && typeof window !== 'undefined' && window.qrcode) {
+      this.qrcode = window.qrcode;
+    }
+  }
+
+  afterRender() {
+    this.onMount();
   }
 
   async onMount() {
@@ -9,57 +22,68 @@ export class QRLogin {
     const sessionIdDisplay = document.getElementById('session-id-display');
     if (!qrContainer) return;
 
-    // 1. Create session in Firestore
-    await firestore.createSession(this.sessionId);
-    if (sessionIdDisplay) sessionIdDisplay.textContent = this.sessionId;
+    try {
+      // 1. Create session in Firestore
+      await firestore.createSession(this.sessionId);
+      if (sessionIdDisplay) sessionIdDisplay.textContent = this.sessionId;
 
-    // 2. Expiration timer (2 minutes)
-    this.expirationTimer = setTimeout(async () => {
-      console.log('Session expired');
-      if (this.unsubscribe) this.unsubscribe();
-      if (qrContainer) {
-        qrContainer.innerHTML = `
-          <div class="flex flex-col items-center gap-2 text-on-surface-variant">
-            <span class="material-symbols-outlined text-4xl">timer_off</span>
-            <p class="text-xs font-bold uppercase tracking-widest">Expired</p>
-            <button onclick="window.location.reload()" class="text-primary font-bold text-xs hover:underline">Refresh</button>
-          </div>
-        `;
+      // 2. Expiration timer (2 minutes)
+      this.expirationTimer = setTimeout(async () => {
+        console.log('Session expired');
+        if (this.unsubscribe) this.unsubscribe();
+        if (qrContainer) {
+          qrContainer.innerHTML = `
+            <div class="flex flex-col items-center gap-2 text-on-surface-variant">
+              <span class="material-symbols-outlined text-4xl">timer_off</span>
+              <p class="text-xs font-bold uppercase tracking-widest">Expired</p>
+              <button onclick="window.location.reload()" class="text-primary font-bold text-xs hover:underline">Refresh</button>
+            </div>
+          `;
+        }
+      }, 120000);
+
+      // 3. Generate QR Code
+      if (typeof this.qrcode !== 'function') {
+        throw new Error('QR Code generator not found or invalid');
       }
-    }, 120000);
 
-    // 3. Generate QR Code
-    const qr = qrcode(0, 'M');
-    qr.addData(JSON.stringify({
-      type: 'bytelearn-auth',
-      sessionId: this.sessionId
-    }));
-    qr.make();
-    qrContainer.innerHTML = qr.createImgTag(6);
+      const qr = this.qrcode(0, 'M');
+      qr.addData(JSON.stringify({
+        type: 'bytelearn-auth',
+        sessionId: this.sessionId
+      }));
+      qr.make();
+      qrContainer.innerHTML = qr.createImgTag(6);
 
-    // 3. Listen for approval
-    this.unsubscribe = firestore.listenToSession(this.sessionId, async (data) => {
-      if (data.status === 'approved' && data.userId) {
-        console.log('Session approved for user:', data.userId);
-        
-        // Use userData from session if available (PC is not authenticated)
-        let userData = data.userData;
-        
-        if (!userData) {
-          try {
-            userData = await firestore.getUserData(data.userId);
-          } catch (e) {
-            console.error('Failed to fetch user data directly:', e);
+      // 4. Listen for approval
+      this.unsubscribe = firestore.listenToSession(this.sessionId, async (data) => {
+        if (data.status === 'approved' && data.userId) {
+          console.log('Session approved for user:', data.userId);
+          
+          let userData = data.userData;
+          if (!userData) {
+            try {
+              userData = await firestore.getUserData(data.userId);
+            } catch (e) {
+              console.error('Failed to fetch user data directly:', e);
+            }
+          }
+          
+          if (userData) {
+            // Delete session after use for security
+            try {
+              await firestore.deleteSession(this.sessionId);
+            } catch (e) {
+              console.warn('Failed to delete session:', e);
+            }
+            window.app.onLoginSuccess(data.userId, userData);
           }
         }
-        
-        if (userData) {
-          window.app.onLoginSuccess(data.userId, userData);
-        } else {
-          console.error('No user data available for session');
-        }
-      }
-    });
+      });
+    } catch (error) {
+      console.error('QR Setup Error:', error);
+      qrContainer.innerHTML = `<p class="text-error text-xs font-bold">Failed to generate QR</p>`;
+    }
   }
 
   onUnmount() {
@@ -68,21 +92,32 @@ export class QRLogin {
   }
 
   render() {
-    // Auto-trigger onMount after a short delay to ensure DOM is ready
-    setTimeout(() => this.onMount(), 100);
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
+    if (isMobile) {
+      return `<div class="container flex items-center justify-center min-h-screen">
+        <p class="text-on-surface-variant font-bold">Please use the standard login on mobile.</p>
+      </div>`;
+    }
 
     return `
-      <div class="auth-page-bg container animate-fade-in flex flex-col items-center min-h-screen overflow-hidden relative">
+      <div class="container animate-fade-in flex flex-col items-center min-h-screen overflow-hidden relative">
+        <!-- Background Decorative Glows -->
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-container/5 rounded-full blur-[120px] pointer-events-none"></div>
+
         <!-- Top App Bar -->
         <header class="w-full top-0 flex items-center justify-center px-6 py-8 relative z-10">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-3xl text-primary" style="font-variation-settings: 'FILL' 1">shield_with_heart</span>
-            <span class="text-2xl font-bold bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent tracking-tight leading-relaxed font-headline">ByteLearn</span>
+            <span class="text-2xl font-bold bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent tracking-tight leading-relaxed font-headline">${state.appName}</span>
           </div>
         </header>
 
         <main class="w-full px-6 pb-12 flex flex-col grow justify-center items-center text-center">
-          <div class="relative mb-10">
+          <div class="relative mb-10 flex flex-col items-center">
+            <div class="w-32 h-32 mb-4">
+              <img src="https://dropshare.42web.io/1/files/6hcKiTzMV7.png" alt="Mechanic Mascot" class="w-full h-full object-contain opacity-80">
+            </div>
             <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-widest mb-4">
               <span class="material-symbols-outlined text-sm">desktop_windows</span>
               PC Authorization
@@ -117,6 +152,11 @@ export class QRLogin {
           </div>
 
           <div class="space-y-4 w-full max-w-xs">
+            <button onclick="window.app.bypassLogin()" class="w-full flex items-center justify-center gap-3 bg-primary/10 py-4 rounded-xl font-bold text-primary active:scale-[0.96] transition-transform border border-primary/20 mb-4">
+              <span class="material-symbols-outlined">science</span>
+              Simulation Bypass
+            </button>
+
             <div class="flex items-center gap-4 py-4">
               <div class="h-[1px] grow bg-outline-variant opacity-30"></div>
               <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Instructions</span>
@@ -130,7 +170,7 @@ export class QRLogin {
               </div>
               <div class="flex items-center gap-4 bg-surface-container-low p-4 rounded-xl">
                 <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">2</div>
-                <p class="text-sm font-medium text-on-surface">Go to Profile > Scan PC QR</p>
+                <p class="text-sm font-medium text-on-surface">Tap the QR icon in the bottom menu</p>
               </div>
             </div>
           </div>
@@ -138,8 +178,7 @@ export class QRLogin {
 
         <footer class="w-full py-8 mt-auto text-center">
           <p class="text-on-surface-variant font-medium">
-            Don't have the app? 
-            <a href="/signup" data-link class="text-primary font-bold hover:underline transition-all cursor-pointer">Download Now</a>
+            Secure Authorization Portal
           </p>
         </footer>
       </div>

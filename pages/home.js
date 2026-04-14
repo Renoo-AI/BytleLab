@@ -1,6 +1,28 @@
 import { state } from '../core/state.js';
+import { firestore } from '../core/firebase.js';
 
 export class Home {
+  constructor() {
+    this.leaderboard = [];
+    this.challenges = [];
+    this.isLoadingLeaderboard = true;
+    this.isLoadingChallenges = true;
+  }
+
+  async onMount() {
+    this.leaderboard = await firestore.getLeaderboard(5);
+    this.isLoadingLeaderboard = false;
+    
+    this.challenges = await firestore.getChallenges();
+    this.isLoadingChallenges = false;
+
+    const lbContainer = document.getElementById('leaderboard-container');
+    if (lbContainer) lbContainer.innerHTML = this.renderLeaderboard();
+
+    const tracksContainer = document.getElementById('tracks-container');
+    if (tracksContainer) tracksContainer.innerHTML = this.renderTracks();
+  }
+
   render() {
     if (!state.user) {
       return `
@@ -11,91 +33,160 @@ export class Home {
       `;
     }
 
+    setTimeout(() => this.onMount(), 100);
+
+    const currentPath = this.challenges.find(p => p.id === state.progress.currentPathId) || this.challenges[0] || { title: 'No Active Mission', icon: 'terminal' };
+    const isCompleted = state.user?.completed?.includes(currentPath.id);
+    const progress = isCompleted ? 100 : 0;
+
     return `
-      <div class="container animate-fade-in space-y-8">
-        <!-- Welcome Section -->
-        <section class="relative">
+      <div class="container animate-fade-in space-y-10 py-8">
+        <!-- Header Section -->
+        <header class="flex justify-between items-end border-b border-outline-variant pb-6 relative">
+          <div class="absolute -top-12 -left-4 w-24 h-24 opacity-10 pointer-events-none">
+            <img src="https://dropshare.42web.io/1/files/yCYAur1GZq.png" alt="Welcome Mascot" class="w-full h-full object-contain">
+          </div>
           <div class="space-y-1">
-            <h1 class="text-3xl font-extrabold tracking-tight text-on-surface">Hi ${state.user.name}!</h1>
-            <p class="text-lg text-on-surface-variant font-medium">Ready for a new challenge?</p>
+            <h1 class="text-4xl font-black tracking-tighter text-on-surface">Console.</h1>
+            <p class="text-on-surface-variant font-mono text-xs uppercase tracking-widest">User: ${state.user.name} | Session: Active</p>
           </div>
-          <div class="absolute -top-4 -right-2 w-20 h-20 opacity-20 pointer-events-none">
-            <span class="material-symbols-outlined text-primary text-6xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+          <div class="text-right">
+            <div class="text-3xl font-mono font-black text-primary">${state.user.xp || 0}</div>
+            <div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Total XP Earned</div>
           </div>
-        </section>
+        </header>
 
-        <!-- Continue Learning Card -->
-        <section>
-          <div class="relative overflow-hidden bg-surface-container-lowest rounded-xl p-8 shadow-[0_8px_24px_rgba(50,40,79,0.06)] border border-outline-variant/10">
-            <div class="relative z-10 space-y-6">
-              <div class="space-y-2">
-                <span class="text-xs font-bold uppercase tracking-widest text-primary">Current Path</span>
-                <h2 class="text-2xl font-bold text-on-surface">${state.progress.currentPath}</h2>
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Active Path Card -->
+          <div class="lg:col-span-2 space-y-6">
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 relative overflow-hidden group">
+              <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <span class="material-symbols-outlined text-[160px]">${currentPath.icon || 'terminal'}</span>
               </div>
-              <div class="space-y-3">
-                <div class="flex justify-between items-end">
-                  <span class="text-sm font-semibold text-on-surface-variant">65% Completed</span>
-                  <span class="text-xs font-bold text-primary">8/12 Modules</span>
+              
+              <div class="relative z-10 space-y-8">
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2 text-primary">
+                    <span class="material-symbols-outlined text-sm">terminal</span>
+                    <span class="text-xs font-bold uppercase tracking-widest">Active Mission</span>
+                  </div>
+                  <h2 class="text-3xl font-black text-on-surface tracking-tight">${currentPath.title}</h2>
                 </div>
-                <div class="h-3 w-full bg-surface-container-low rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-primary to-primary-container rounded-full" style="width: 65%"></div>
+
+                <div class="space-y-4">
+                  <div class="flex justify-between items-end font-mono text-xs">
+                    <span class="text-on-surface-variant uppercase tracking-widest">Progress Analysis</span>
+                    <span class="text-primary font-bold">${progress}%</span>
+                  </div>
+                  <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+                    <div class="h-full bg-primary transition-all duration-1000" style="width: ${progress}%"></div>
+                  </div>
                 </div>
+
+                <a href="/paths" data-link class="inline-flex items-center gap-3 bg-on-surface text-surface px-8 py-4 rounded-xl font-bold hover:bg-primary hover:text-on-primary transition-all active:scale-95">
+                  <span>Resume Operations</span>
+                  <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
               </div>
-              <a href="/map" data-link class="btn-primary w-full">
-                <span>Resume Path</span>
-                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
-              </a>
             </div>
-            <div class="absolute -bottom-4 -right-4 opacity-10">
-              <span class="material-symbols-outlined text-[120px]">language</span>
-            </div>
-          </div>
-        </section>
 
-        <!-- Stats Row -->
-        <section class="grid grid-cols-2 gap-4">
-          <div class="bg-surface-container-low p-6 rounded-xl space-y-2">
-            <span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">flag</span>
-            <div>
-              <div class="text-2xl font-black text-on-surface">${state.user.flags}</div>
-              <div class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Total Flags</div>
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 flex flex-col justify-between h-32">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Level Status</span>
+                <div class="text-3xl font-black text-on-surface">${state.user.level}</div>
+              </div>
+              <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 flex flex-col justify-between h-32">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Flags Captured</span>
+                <div class="text-3xl font-black text-on-surface">${state.user.flags || 0}</div>
+              </div>
             </div>
           </div>
-          <div class="bg-surface-container-low p-6 rounded-xl space-y-2">
-            <span class="material-symbols-outlined text-primary">trending_up</span>
-            <div>
-              <div class="text-2xl font-black text-on-surface">${state.user.level}</div>
-              <div class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Current Level</div>
-            </div>
-          </div>
-        </section>
 
-        <!-- Categories Section -->
-        <section class="space-y-4 pb-12">
-          <div class="flex justify-between items-center">
-            <h3 class="text-xl font-bold text-on-surface">Challenge Categories</h3>
-            <button class="text-sm font-bold text-primary">View All</button>
+          <!-- Sidebar -->
+          <div class="space-y-8">
+            <!-- Leaderboard -->
+            <div class="space-y-4">
+              <div class="flex items-center justify-between px-2">
+                <h3 class="text-xs font-black text-on-surface-variant uppercase tracking-widest">Global Leaderboard</h3>
+                <span class="material-symbols-outlined text-sm text-on-surface-variant">leaderboard</span>
+              </div>
+              <div id="leaderboard-container" class="space-y-2">
+                ${this.renderLeaderboard()}
+              </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="space-y-4">
+              <div class="flex items-center justify-between px-2">
+                <h3 class="text-xs font-black text-on-surface-variant uppercase tracking-widest">Available Tracks</h3>
+                <a href="/paths" data-link class="text-[10px] font-bold text-primary uppercase hover:underline">View All</a>
+              </div>
+              
+              <div id="tracks-container" class="space-y-3">
+                ${this.renderTracks()}
+              </div>
+            </div>
           </div>
-          <div class="space-y-3">
-            ${this.renderCategories()}
-          </div>
-        </section>
+        </div>
       </div>
     `;
   }
 
-  renderCategories() {
-    return state.progress.paths.map(path => `
-      <a href="/map" data-link class="group flex items-center gap-4 p-4 ${path.status === 'locked' ? 'opacity-60 grayscale pointer-events-none' : 'bg-surface-container-low'} rounded-xl hover:bg-surface-container-high transition-colors cursor-pointer no-underline">
-        <div class="w-14 h-14 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
-          <span class="material-symbols-outlined text-2xl">${path.icon}</span>
+  renderTracks() {
+    if (this.isLoadingChallenges) {
+      return `
+        <div class="p-4 text-center">
+          <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <span class="text-[10px] text-on-surface-variant uppercase font-bold">Loading Tracks...</span>
         </div>
-        <div class="flex-1">
-          <h4 class="font-bold text-on-surface">${path.title}</h4>
-          <p class="text-sm text-on-surface-variant">${path.difficulty} • ${path.lessons} Lessons</p>
+      `;
+    }
+
+    if (this.challenges.length === 0) {
+      return `<p class="text-xs text-on-surface-variant italic px-2">No tracks available.</p>`;
+    }
+
+    return this.challenges.slice(0, 3).map(path => `
+      <a href="/paths" data-link class="flex items-center gap-4 p-4 bg-surface-container-low border border-outline-variant/20 rounded-xl hover:border-primary/30 transition-all group">
+        <div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+          <span class="material-symbols-outlined text-xl">${path.icon || 'terminal'}</span>
         </div>
-        <span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-on-surface truncate">${path.title}</div>
+          <div class="text-[10px] text-on-surface-variant uppercase tracking-tighter">${path.difficulty}</div>
+        </div>
+        <span class="material-symbols-outlined text-sm text-outline group-hover:text-primary transition-colors">chevron_right</span>
       </a>
+    `).join('');
+  }
+
+  renderLeaderboard() {
+    if (this.isLoadingLeaderboard) {
+      return `
+        <div class="p-4 text-center">
+          <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <span class="text-[10px] text-on-surface-variant uppercase font-bold">Syncing...</span>
+        </div>
+      `;
+    }
+
+    if (this.leaderboard.length === 0) {
+      return `<p class="text-xs text-on-surface-variant italic px-2">No public agents found.</p>`;
+    }
+
+    return this.leaderboard.map((user, index) => `
+      <div class="flex items-center gap-3 p-3 bg-surface-container-low border border-outline-variant/10 rounded-xl">
+        <div class="w-6 h-6 flex items-center justify-center font-mono text-xs font-bold ${index === 0 ? 'text-primary' : 'text-on-surface-variant'}">
+          ${index + 1}
+        </div>
+        <img src="${user.avatar}" class="w-8 h-8 rounded-full border border-outline-variant/20" alt="${user.name}">
+        <div class="flex-1 min-w-0">
+          <div class="text-xs font-bold text-on-surface truncate">${user.name}</div>
+          <div class="text-[10px] text-on-surface-variant font-mono">${user.xp} XP</div>
+        </div>
+      </div>
     `).join('');
   }
 }

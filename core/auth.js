@@ -1,5 +1,5 @@
 import { firebaseAuth, firestore } from './firebase.js';
-import { updateState, state, resetState } from './state.js';
+import { updateState, state } from './state.js';
 import { storage } from './storage.js';
 
 export const auth = {
@@ -11,6 +11,7 @@ export const auth = {
         firestore.listenToUser(user.uid, (userData) => {
           updateState('user', userData);
           updateState('isAuthenticated', true);
+          updateState('isAuthReady', true);
           if (onUserLoaded) onUserLoaded(userData);
         });
 
@@ -27,13 +28,15 @@ export const auth = {
             xp: 0,
             flags: 0,
             completed: [],
-            role: 'user'
+            role: 'user',
+            isPublic: true
           };
           await firestore.saveUserData(user.uid, newProfile);
         }
       } else {
         updateState('isAuthenticated', false);
         updateState('user', null);
+        updateState('isAuthReady', true);
       }
     });
   },
@@ -43,7 +46,7 @@ export const auth = {
       await firebaseAuth.signInWithGoogle();
       return true;
     } catch (error) {
-      console.error('Auth Error');
+      console.error('Auth Error:', error);
       return false;
     }
   },
@@ -62,7 +65,7 @@ export const auth = {
       await firestore.approveSession(sessionId, state.user.uid, userData);
       return true;
     } catch (error) {
-      console.error('Approval Error');
+      console.error('Approval Error:', error);
       return false;
     }
   }

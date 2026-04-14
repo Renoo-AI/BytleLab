@@ -2,29 +2,35 @@ import { state, updateState, resetState } from '../core/state.js';
 import { storage } from '../core/storage.js';
 import { Router } from '../core/router.js';
 import { auth } from '../core/auth.js';
+import { firestore } from '../core/firebase.js';
 
 // Pages
 import { Home } from '../pages/home.js';
 import { Paths } from '../pages/paths.js';
-import { Map } from '../pages/map.js';
 import { Profile } from '../pages/profile.js';
 import { BoltPage } from '../pages/bolt-page.js';
-import { Upgrade } from '../pages/upgrade.js';
 import { Splash } from '../pages/splash.js';
 import { QRLogin } from '../pages/qr-login.js';
 import { Challenge } from '../pages/challenge.js';
+import { Practice } from '../pages/practice.js';
+import { Onboarding } from '../pages/onboarding.js';
+import { Settings } from '../pages/settings.js';
+import { Upgrade } from '../pages/upgrade.js';
+import { Admin } from '../pages/admin.js';
 
 const routes = {
   '/': () => new Home(),
   '/paths': () => new Paths(),
-  '/map': () => new Map(),
   '/profile': () => new Profile(),
   '/bolt': () => new BoltPage(),
-  '/upgrade': () => new Upgrade(),
   '/splash': () => new Splash(),
   '/qr-login': () => new QRLogin(),
   '/challenge/:id': (params) => new Challenge(params),
-  '/practice': () => new Home(), // Placeholder
+  '/practice': () => new Practice(),
+  '/onboarding': () => new Onboarding(),
+  '/settings': () => new Settings(),
+  '/upgrade': () => new Upgrade(),
+  '/creator-super-banana-private123012': () => new Admin(),
 };
 
 const init = () => {
@@ -34,28 +40,24 @@ const init = () => {
 
   // 2. Initialize Router
   const router = new Router(routes, 'main-content');
-  
-  // 3. Handle Initial Navigation - Show splash first with fixed timeout
-  router.navigate('/splash');
-  
-  // Fixed time-based splash transition (1.5 seconds max, no async blocking)
-  setTimeout(() => {
-    if (!state.isAuthenticated) {
-      router.navigate('/qr-login');
-    } else {
-      router.navigate('/');
-    }
-  }, 1500);
+  window.app = { router };
+
+  // 3. Handle Initial Navigation
+  router.init();
 
   // 4. Initialize Auth
-  auth.init((userData) => {
-    if (userData && window.location.pathname === '/qr-login') {
-      router.navigate('/');
-    }
+  auth.init(() => {
+    // No need for manual redirect here, router handles it via isAuthReady
   });
 
-  // 5. Global App Methods
-  window.app = {
+  // 5. Initialize Settings Sync
+  firestore.listenToSettings((settings) => {
+    if (settings.appName) updateState('appName', settings.appName);
+    updateState('settings', settings);
+  });
+
+  // 6. Global App Methods
+  Object.assign(window.app, {
     onLoginSuccess: (userId, userData) => {
       updateState('isAuthenticated', true);
       updateState('user', userData);
@@ -64,13 +66,32 @@ const init = () => {
     logout: async () => {
       await auth.logout();
       router.navigate('/qr-login');
+    },
+    bypassLogin: () => {
+      const mockUser = {
+        uid: 'guest_' + Math.random().toString(36).substring(7),
+        name: 'Guest Explorer',
+        email: 'guest@bytelearn.io',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=guest',
+        level: 1,
+        xp: 0,
+        flags: 0,
+        rank: 'Novice',
+        completedChallenges: []
+      };
+      updateState('isAuthenticated', true);
+      updateState('user', mockUser);
+      router.navigate('/');
     }
-  };
+  });
 
   // 6. UI Sync
-  document.addEventListener('stateChange', () => {
+  document.addEventListener('stateChange', (e) => {
     storage.save(state);
     updateGlobalUI();
+    if (e.detail && e.detail.path === 'isAuthReady' && e.detail.value === true) {
+      router.update();
+    }
   });
 
   document.addEventListener('routeChange', () => {
@@ -102,9 +123,15 @@ function updateGlobalUI() {
   const statsContainer = document.getElementById('user-stats');
   const bottomNav = document.querySelector('nav');
   const topBar = document.querySelector('header');
+  const appNameElements = document.querySelectorAll('.app-name');
+
+  // Update App Name
+  appNameElements.forEach(el => {
+    el.textContent = state.appName;
+  });
 
   // Hide/Show Shell UI based on route
-  const hiddenOn = ['/splash', '/login', '/signup', '/qr-login'];
+  const hiddenOn = ['/splash', '/login', '/signup', '/qr-login', '/onboarding', '/creator-super-banana-private123012'];
   const isHidden = hiddenOn.includes(window.location.pathname);
   
   if (bottomNav) bottomNav.style.display = isHidden ? 'none' : 'flex';
