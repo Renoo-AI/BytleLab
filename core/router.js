@@ -39,7 +39,7 @@ export class Router {
     }
 
     const path = window.location.pathname;
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
+    const isMobile = window.isMobile !== undefined ? window.isMobile : (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024);
     const isPC = !isMobile;
     const { state } = await import('./state.js');
 
@@ -97,10 +97,17 @@ export class Router {
     let routeKey = path;
     let params = {};
 
-    // Simple dynamic route matching for /challenge/:id
+    // Simple dynamic route matching
     if (path.startsWith('/challenge/')) {
       routeKey = '/challenge/:id';
       params.id = path.split('/')[2];
+    } else if (path.startsWith('/levels/')) {
+      const parts = path.split('/');
+      if (parts.length >= 4) {
+        routeKey = '/levels/:world/:step';
+        params.world = parts[2];
+        params.step = parts[3];
+      }
     }
 
     const route = this.routes[routeKey] || this.routes['/'];

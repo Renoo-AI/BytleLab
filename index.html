@@ -12,7 +12,16 @@
     <div id="app-root"></div>
 
     <script type="module">
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
+    const path = window.location.pathname;
+    let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
+    
+    // Explicit override via URL
+    if (path.startsWith('/pc')) isMobile = false;
+    if (path.startsWith('/phone')) isMobile = true;
+    
+    // Persist platform choice to window for use in the app
+    window.isMobile = isMobile;
+    
     const isPC = !isMobile;
     const root = document.getElementById('app-root');
         

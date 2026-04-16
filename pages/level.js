@@ -32,20 +32,20 @@ export class Level {
       
       // Special case: 0.0 doesn't require completion, but others do
       if (prevStep >= 0 && !state.user?.completed?.includes(prevId) && prevId !== "0.0") {
-        // Find last unlocked level
+          // Find last unlocked level in this world
         const completed = state.user?.completed || [];
-        let lastUnlocked = "0.0";
-        // Simple logic for now: find highest step in current world
         const worldLevels = completed.filter(id => id.startsWith(`${this.world}.`));
+        
+        let lastUnlockedStep = 0;
         if (worldLevels.length > 0) {
           const steps = worldLevels.map(id => parseInt(id.split('.')[1]));
-          const maxStep = Math.max(...steps);
-          lastUnlocked = `${this.world}.${maxStep + 1}`;
-        } else {
-          lastUnlocked = "0.1"; // 0.0 is always open, so 0.1 is the first "locked" one
+          lastUnlockedStep = Math.max(...steps) + 1;
         }
         
-        window.app.router.navigate(`/levels/${this.world}/${lastUnlocked.split('.')[1]}`);
+        // Safety: only navigate if we're not already trying to go to the correct step
+        if (this.step !== lastUnlockedStep) {
+          window.app.router.navigate(`/levels/${this.world}/${lastUnlockedStep}`);
+        }
         return;
       }
     }
