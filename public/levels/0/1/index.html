@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Discovery 0.1</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f6fb;
+            --text: #1d1d1f;
+            --primary: #4546d7;
+            --secondary: #86868b;
+            --border: #e2e8f0;
+            --font-main: 'Be Vietnam Pro', sans-serif;
+            --font-display: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* --- TOP BAR --- */
+        #header-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            padding: 0 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(245, 246, 251, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .app-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .progress-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-grow: 1;
+            max-width: 300px;
+            margin: 0 40px;
+        }
+
+        .progress-rail {
+            flex-grow: 1;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--secondary);
+            min-width: 30px;
+        }
+
+        .btn-quit {
+            color: var(--secondary);
+            font-weight: 700;
+            font-size: 1rem;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .btn-quit:hover { color: #f43f5e; }
+
+        /* --- ASSISTANT HUD --- */
+        .assistant-container {
+            position: fixed;
+            top: 120px;
+            right: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            z-index: 1000;
+            max-width: 280px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .assistant-container.victory-move {
+            top: 50% !important;
+            right: 50% !important;
+            transform: translate(50%, -50%) scale(1.1) !important;
+            align-items: center;
+            max-width: 440px;
+        }
+
+        .bubble {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+            text-align: right;
+            position: relative;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .bubble.hidden-msg {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+            pointer-events: none;
+        }
+
+        .assistant-container.victory-move .bubble {
+            text-align: center;
+            padding: 32px;
+        }
+
+        .bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 24px;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid white;
+        }
+
+        .assistant-container.victory-move .bubble::after {
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+        }
+
+        .bubble-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.5;
+            color: #334155;
+        }
+
+        .mascot-img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .assistant-container.victory-move .mascot-img {
+            width: 150px;
+            height: 150px;
+        }
+
+        /* --- ACCOUNT CARD --- */
+        .account-card {
+            background: white;
+            width: 100%;
+            max-width: 440px;
+            padding: 50px 40px;
+            border-radius: 48px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.02);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.2, 1, 0.2, 1);
+        }
+
+        .card-exit {
+            transform: scale(0.85) translateY(-50px);
+            opacity: 0 !important;
+            filter: blur(12px);
+            pointer-events: none;
+        }
+
+        .bank-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2rem;
+            color: var(--secondary);
+            margin-bottom: 40px;
+        }
+
+        .label {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 24px;
+        }
+
+        .masked-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .dot {
+            width: 16px;
+            height: 16px;
+            background: #1e293b;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .balance-real {
+            display: none; 
+            font-family: var(--font-display);
+            font-size: 3.8rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 40px;
+            color: var(--primary);
+        }
+
+        /* Peak-a-boo hint on load */
+        @keyframes hintFlash {
+            0% { opacity: 0; }
+            10% { opacity: 0.3; }
+            20% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        .balance-real.hint {
+            display: block !important;
+            animation: hintFlash 2s ease-out 1s forwards;
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 145px;
+            pointer-events: none;
+        }
+
+        .btn-main {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 20px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            cursor: not-allowed;
+            border: none;
+            opacity: 0.5;
+        }
+
+        /* --- OVERLAYS --- */
+        #transition-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--primary);
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+        }
+
+        #story-overlay {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 1500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .story-content { text-align: center; max-width: 450px; padding: 20px; }
+
+        #system-msg {
+            position: fixed;
+            bottom: 40px;
+            font-size: 13px;
+            color: var(--secondary);
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="transition-screen"></div>
+
+    <!-- Intro Story -->
+    <div id="story-overlay">
+        <div class="story-content">
+            <img src="https://dropshare.42web.io/1/files/zVYAUZDpex.png" class="w-24 mx-auto mb-8" alt="Byte">
+            <h1 class="text-3xl font-extrabold mb-4 tracking-tight">Level 0.1: The Hidden View</h1>
+            <p class="text-lg text-slate-500 mb-10 font-medium leading-relaxed">Most things are exactly what they seem. Some things are hiding in plain sight. Take a look behind the curtain.</p>
+            <button onclick="startLevel()" class="bg-[#4546d7] text-white px-10 py-4 rounded-full text-lg font-bold hover:scale-105 transition-all">Start Discovery</button>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header id="header-nav" class="opacity-0 transition-opacity duration-700">
+        <div class="logo-group">
+            <img src="https://dropshare.42web.io/1/files/UIi3dXms4F.png" class="app-logo" alt="ByteLearn Logo">
+            <span class="font-extrabold text-2xl tracking-tighter">ByteLearn</span>
+        </div>
+
+        <div class="progress-box">
+            <div class="progress-rail">
+                <div id="progress-fill-bar" class="progress-fill"></div>
+            </div>
+            <span id="progress-text-val" class="progress-text">1/5</span>
+        </div>
+
+        <button onclick="quit()" class="btn-quit">Quit</button>
+    </header>
+
+    <main id="game-stage" class="w-full flex flex-col items-center justify-center">
+        
+        <!-- Assistant Section -->
+        <div id="assistant" class="assistant-container">
+            <div id="bubble-container" class="bubble hidden-msg">
+                <p class="bubble-text" id="talk-text"></p>
+            </div>
+            <img id="mascot" src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="mascot-img" alt="Byte">
+        </div>
+
+        <!-- Challenge Card -->
+        <div id="card" class="account-card">
+            <div class="bank-title">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.5,1L2,6V8H21V6M2,10V12H3V19H2V21H21V19H20V12H21V10M5,12H8V19H5M10,12H13V19H10M15,12H18V19H15M11.5,3C12.3,3 13,3.7 13,4.5C13,5.3 12.3,6 11.5,6C10.7,6 10,5.3 10,4.5C10,3.7 10.7,3 11.5,3Z"/></svg>
+                National Bank
+            </div>
+            
+            <p class="label">Total Balance</p>
+            
+            <div class="masked-dots" id="dots">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+
+            <!-- CHALLENGE: Change display:none to display:block -->
+            <div class="balance-real hint" id="real-balance" style="display: none">$12,500.00</div>
+
+            <button class="btn-main" id="btn-reveal">Show Balance</button>
+        </div>
+    </main>
+
+    <p id="system-msg">Code isn't magic. It's just visibility.</p>
+
+    <script>
+        const transition = document.getElementById('transition-screen');
+        const story = document.getElementById('story-overlay');
+        const header = document.getElementById('header-nav');
+        const assistant = document.getElementById('assistant');
+        const bubble = document.getElementById('bubble-container');
+        const card = document.getElementById('card');
+        const realBalance = document.getElementById('real-balance');
+        const dots = document.getElementById('dots');
+        const mascot = document.getElementById('mascot');
+        const talkText = document.getElementById('talk-text');
+        const sysMsg = document.getElementById('system-msg');
+        
+        const fillBar = document.getElementById('progress-fill-bar');
+        const progressTextVal = document.getElementById('progress-text-val');
+
+        const BYTE_PC = "https://dropshare.42web.io/1/files/OStYxaWILh.png";
+
+        let bubbleTimeout = null;
+        let hintTimeout = null;
+        let levelWon = false;
+
+        window.onload = () => {
+            setTimeout(() => transition.style.opacity = '0', 500);
+            setTimeout(() => {
+                realBalance.classList.remove('hint');
+            }, 3000);
+        };
+
+        // BYTE SPEAK ALGORITHM
+        function speak(text, duration = 6000, persist = false) {
+            if (levelWon && !persist) return; // Don't interrupt win sequence
+
+            // Clear any existing hide timer
+            if (bubbleTimeout) clearTimeout(bubbleTimeout);
+
+            talkText.innerText = text;
+            bubble.classList.remove('hidden-msg');
+
+            // Only set auto-hide if not persistent
+            if (!persist) {
+                bubbleTimeout = setTimeout(() => {
+                    bubble.classList.add('hidden-msg');
+                }, duration);
+            }
+        }
+
+        function startLevel() {
+            story.style.opacity = '0';
+            setTimeout(() => {
+                story.style.display = 'none';
+                transition.style.opacity = '1';
+                setTimeout(() => {
+                    transition.style.opacity = '0';
+                    header.style.opacity = '1';
+                    assistant.style.opacity = '1';
+                    assistant.style.transform = 'translateY(0)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                    fillBar.style.width = '20%';
+                    
+                    // First instruction
+                    speak("The data is there, but the style is blocking it. Can you reveal it?");
+
+                    // Setup Hint Timer (If not solved in 15 seconds)
+                    hintTimeout = setTimeout(() => {
+                        if (!levelWon) {
+                            speak("Need a hint? Inspect the 'real-balance' element and change its display style!");
+                        }
+                    }, 15000);
+
+                    initHackingDetection();
+                }, 800);
+            }, 500);
+        }
+
+        function initHackingDetection() {
+            const observer = new MutationObserver(() => {
+                const style = window.getComputedStyle(realBalance);
+                if (style.display !== 'none' && style.visibility !== 'hidden') {
+                    dots.style.display = 'none'; 
+                    levelWon = true;
+                    handleWin();
+                    observer.disconnect();
+                }
+            });
+            observer.observe(realBalance, { attributes: true, attributeFilter: ['style', 'class'] });
+        }
+
+        function handleWin() {
+            if (hintTimeout) clearTimeout(hintTimeout);
+            if (bubbleTimeout) clearTimeout(bubbleTimeout);
+
+            // Notify parent ByteLearn platform of completion
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 0,
+                    step: 1,
+                    value: 'reveal'
+                }, '*');
+            }
+
+            setTimeout(() => {
+                card.classList.add('card-exit');
+                assistant.classList.add('victory-move');
+                
+                setTimeout(() => {
+                    mascot.src = BYTE_PC;
+                    // Persist win message (doesn't disappear)
+                    speak("Unstoppable. You're starting to think like an architect.", 0, true);
+                    
+                    setTimeout(() => {
+                        fillBar.style.width = '40%';
+                        progressTextVal.innerText = '2/5';
+                        progressTextVal.style.color = '#4546d7';
+                    }, 500);
+
+                    setTimeout(() => {
+                        sysMsg.style.opacity = '1';
+                        setTimeout(() => {
+                            transition.style.opacity = '1';
+                        }, 2500);
+                    }, 1200);
+                }, 400);
+
+            }, 1000); 
+        }
+
+        function quit() {
+            transition.style.opacity = '1';
+        }
+    </script>
+</body>
+</html>

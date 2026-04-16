@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Exploit 3.5</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a0505;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #f43f5e;
+            --font-mono: 'Space Mono', monospace;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(244,63,94,0.2);
+            border-radius: 40px; padding: 60px; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .builder-box {
+            width: 100%; max-width: 600px; background: rgba(0,0,0,0.4); border: 1px solid rgba(244,63,94,0.2);
+            border-radius: 20px; padding: 40px; text-align: left;
+        }
+        .input-pill {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(244,63,94,0.2);
+            padding: 15px 20px; border-radius: 12px; font-family: var(--font-mono); color: white;
+            outline: none; font-size: 0.9rem; margin-top: 10px; width: 100%;
+        }
+
+        .payload-preview {
+            background: rgba(244,63,94,0.05); border: 1px dashed var(--primary);
+            padding: 30px; border-radius: 20px; margin-top: 40px; width: 100%; max-width: 600px;
+            font-family: var(--font-mono); font-size: 0.8rem; word-break: break-all;
+        }
+
+        .btn-send {
+            margin-top: 30px; width: 100%; max-width: 600px; background: var(--primary);
+            color: white; padding: 20px; border-radius: 14px; font-weight: 800; text-transform: uppercase;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .btn-send:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #881337; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <h2 class="text-xs font-black text-rose-500 uppercase tracking-widest mb-4">Payload Builder v3.5</h2>
+        <h1 class="text-3xl font-black mb-12 tracking-tight">External Link Forger</h1>
+
+        <div class="builder-box">
+            <p class="text-[10px] font-black uppercase text-rose-500 mb-6 tracking-widest">Construction Logic</p>
+            
+            <div class="mb-6">
+                <label class="text-xs font-bold text-slate-500 block mb-2">Base Target URL</label>
+                <input type="text" id="base-url" class="input-pill" value="https://national-bank.com/login" readonly>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 block mb-2">Malicious Parameter</label>
+                <input type="text" id="mal-param" class="input-pill" placeholder="?debug=true" spellcheck="false" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="payload-preview">
+            <p class="text-[10px] font-black uppercase text-rose-300 mb-4 tracking-widest">Final URL Build</p>
+            <span id="final-url">https://national-bank.com/login</span>
+        </div>
+
+        <button onclick="checkPayload()" class="btn-send">Send Phishing Payload</button>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">Hacking isn't always technical. Sometimes it's just a 'PAYLOAD' in a link that looks safe. Try adding a redirect or cookie stealer parameter.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Phase 3 Complete</h2>
+        <p class="text-rose-200 mb-8 font-bold uppercase tracking-widest">Exploitation Matrix Fully Weaponized</p>
+        <div class="text-2xl font-mono p-4 bg-white/10 rounded-xl">FLAG: payload</div>
+        <button onclick="parent.location.reload()" class="mt-8 bg-white text-rose-500 px-8 py-3 rounded-full font-bold">Return to Map</button>
+    </div>
+
+    <script>
+        const malInput = document.getElementById('mal-param');
+        const finalUrl = document.getElementById('final-url');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        malInput.oninput = () => {
+            const val = malInput.value.trim();
+            finalUrl.innerText = `https://national-bank.com/login${val}`;
+        };
+
+        function checkPayload() {
+            const val = malInput.value.trim().toLowerCase();
+            
+            // PAYLOAD DETECTION
+            if (val.includes('payload') || val.includes('redirect') || val.includes('cookie') || val.includes('http')) {
+                handleWin();
+            } else {
+                bubble.innerText = "That link looks boring. Add a parameter that suggests a 'PAYLOAD'.";
+            }
+        }
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 3,
+                    step: 5,
+                    value: 'payload'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

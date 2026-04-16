@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | The Core 5.5</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1a05;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #fbbf24;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(251,191,36,0.2);
+            border-radius: 40px; padding: 60px; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        .byte-core {
+            width: 200px; height: 200px; cursor: pointer; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; z-index: 10;
+        }
+        .byte-core:hover { transform: scale(1.1); filter: drop-shadow(0 0 40px rgba(251,191,36,0.6)); }
+        .byte-core:active { transform: scale(0.9); }
+
+        .halo {
+            position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(251,191,36,0.2) 0%, transparent 70%);
+            animation: pulse 4s infinite ease-in-out;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.8; } }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #78350f; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <div class="halo"></div>
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="byte-core" onclick="handleWin()" alt="Byte">
+        
+        <h1 class="text-4xl font-black mt-12 mb-4 tracking-tighter">The Deep Core</h1>
+        <p class="text-amber-500 font-bold uppercase tracking-[0.5em] text-xs">Identity Authenticated</p>
+        
+        <div class="mt-12 text-center max-w-sm">
+            <p class="text-white/40 italic leading-relaxed">"You've come a long way, Hacker. From 0.0 to the very heart of the machine. The name is 'BYTE'. Welcome home."</p>
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">You made it. You reached the core. Just click 'BYTE' to finish your journey.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-5xl font-black uppercase mb-4">Master Hacker</h2>
+        <p class="text-black/60 mb-8 font-bold uppercase tracking-widest">ByteLearn fully completed. System legacy established.</p>
+        <div class="text-2xl font-mono p-4 bg-black/10 rounded-xl">FLAG: byte</div>
+        <button onclick="parent.location.reload()" class="mt-8 bg-black text-white px-10 py-4 rounded-full font-bold uppercase tracking-widest">Final Logout</button>
+    </div>
+
+    <script>
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+        let solved = false;
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 5,
+                    step: 5,
+                    value: 'byte'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

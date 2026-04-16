@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Infiltrate 5.4</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1a05;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #fbbf24;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(251,191,36,0.2);
+            border-radius: 40px; padding: 60px; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .control-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; max-width: 600px;
+        }
+        .control-card {
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 24px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.3s; cursor: pointer;
+        }
+        .control-card:hover { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.02); }
+        .control-card.active { border-color: #fbbf24; color: #fbbf24; box-shadow: 0 0 20px rgba(251,191,36,0.1); }
+
+        .btn-master {
+            width: 100%; max-width: 600px; background: #fbbf24; color: black; padding: 24px;
+            border-radius: 20px; font-weight: 800; text-transform: uppercase; margin-top: 40px;
+            cursor: pointer; transition: all 0.3s; opacity: 0.3; pointer-events: none;
+        }
+        .btn-master.ready { opacity: 1; pointer-events: auto; box-shadow: 0 0 50px rgba(251,191,36,0.4); }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #78350f; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <h2 class="text-xs font-black text-amber-500 uppercase tracking-widest mb-4">Master Override System</h2>
+        <h1 class="text-3xl font-black mb-12 tracking-tight">Full Spectrum Control</h1>
+
+        <div class="control-grid">
+            <div class="control-card" onclick="toggle(this)">
+                <span class="text-2xl mb-2">🔒</span>
+                <span class="text-[10px] font-black uppercase">Firewall Subsystem</span>
+            </div>
+            <div class="control-card" onclick="toggle(this)">
+                <span class="text-2xl mb-2">📡</span>
+                <span class="text-[10px] font-black uppercase">Network Routing</span>
+            </div>
+            <div class="control-card" onclick="toggle(this)">
+                <span class="text-2xl mb-2">👤</span>
+                <span class="text-[10px] font-black uppercase">Identity Matrix</span>
+            </div>
+            <div class="control-card" onclick="toggle(this)">
+                <span class="text-2xl mb-2">💾</span>
+                <span class="text-[10px] font-black uppercase">Memory Banks</span>
+            </div>
+        </div>
+
+        <button id="master-btn" onclick="handleWin()" class="btn-master">Initiate Overall CONTROL</button>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">You've hacked the parts. Now you must take 'CONTROL' of the whole. Activate all sub-systems.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">System Mastered</h2>
+        <p class="text-black/60 mb-8 font-bold uppercase tracking-widest">Master Control takeover complete. Zero-day authority established.</p>
+        <div class="text-2xl font-mono p-4 bg-black/10 rounded-xl">FLAG: control</div>
+    </div>
+
+    <script>
+        const masterBtn = document.getElementById('master-btn');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+        let count = 0;
+
+        function toggle(el) {
+            if (el.classList.contains('active')) return;
+            el.classList.add('active');
+            el.innerHTML = `<span class="text-2xl mb-2">✅</span><span class="text-[10px] font-black uppercase">Operational</span>`;
+            count++;
+            
+            if (count === 4) {
+                masterBtn.classList.add('ready');
+                bubble.innerText = "All systems ready. Take 'CONTROL' now.";
+            }
+        }
+
+        window.handleWin = function() {
+            if (solved || count < 4) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 5,
+                    step: 4,
+                    value: 'control'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

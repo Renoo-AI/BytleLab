@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Persist 4.2</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d2b;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #8b5cf6;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 40px; padding: 60px; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .cron-card {
+            width: 100%; max-width: 600px; background: rgba(0,0,0,0.4); border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 20px; padding: 40px;
+        }
+
+        .cron-input {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(139,92,246,0.2);
+            padding: 20px; border-radius: 12px; font-family: 'Space Mono', monospace; color: #8b5cf6;
+            outline: none; font-size: 1.1rem; text-align: center; margin-bottom: 20px;
+        }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #4c1d95; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <h2 class="text-xs font-black text-violet-500 uppercase tracking-widest mb-4">System Task Scheduler</h2>
+        <h1 class="text-3xl font-black mb-12 tracking-tight">Recurring Persistence</h1>
+
+        <div class="cron-card">
+            <p class="text-slate-500 text-sm mb-6 font-medium tracking-wide">Enter a schedule string (Crontab) to trigger the persistent bridge.</p>
+            <input type="text" id="cron-val" class="cron-input" placeholder="* * * * * [command]" spellcheck="false" autocomplete="off">
+            <p class="text-xs text-slate-600 italic">Example: * * * * * /bin/bash /tmp/backdoor.sh</p>
+        </div>
+        
+        <button onclick="checkCron()" class="bg-violet-600 text-white px-10 py-4 rounded-xl font-bold mt-10 hover:scale-105 transition-all">Schedule Task</button>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">If the admin deletes your backdoor, you need a way to automatically reinstall it. Use a 'CRON' job. Try starting with `* * * * *`.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Task Scheduled</h2>
+        <p class="text-violet-200 mb-8 font-bold uppercase tracking-widest">Cron persistence active. System control secured.</p>
+        <div class="text-2xl font-mono p-4 bg-white/10 rounded-xl">FLAG: cron</div>
+    </div>
+
+    <script>
+        const input = document.getElementById('cron-val');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        function checkCron() {
+            const val = input.value.trim();
+            
+            // Basic detection for cron format or 'cron' keyword
+            if (val.startsWith('* * * * *') || val.includes('cron')) {
+                handleWin();
+            } else {
+                bubble.innerText = "That's not a valid 'CRON' schedule. It needs 5 stars or the 'cron' keyword.";
+            }
+        }
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 4,
+                    step: 2,
+                    value: 'cron'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

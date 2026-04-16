@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Exploit 3.1</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a0505;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #f43f5e;
+            --font-mono: 'Space Mono', monospace;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(244,63,94,0.2);
+            border-radius: 40px; padding: 60px; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        .ping-box {
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(244,63,94,0.3);
+            border-radius: 20px; padding: 40px; text-align: center;
+        }
+        .ping-input {
+            width: 100%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(244,63,94,0.2);
+            padding: 20px; border-radius: 12px; font-family: var(--font-mono); color: white;
+            outline: none; font-size: 1.1rem; text-align: center; transition: all 0.3s;
+        }
+        .ping-input:focus { border-color: var(--primary); background: rgba(244,63,94,0.05); }
+
+        .btn-test {
+            margin-top: 20px; background: var(--primary); color: white; padding: 18px 40px;
+            border-radius: 12px; font-weight: 800; border: none; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-test:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(244,63,94,0.3); }
+
+        .output-console {
+            margin-top: 40px; background: black; border-radius: 16px; padding: 30px;
+            font-family: var(--font-mono); font-size: 13px; color: #fecdd3;
+            min-height: 200px; border: 1px solid rgba(255,255,255,0.05); overflow-y: auto; text-align: left;
+        }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #881337; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <h2 class="text-xs font-black text-rose-500 uppercase tracking-widest mb-4">Remote Command Utility</h2>
+        <h1 class="text-3xl font-black mb-12 tracking-tight">ICMP Connectivity Diagnostic</h1>
+
+        <div class="ping-box">
+            <p class="text-slate-500 text-sm mb-6 font-medium tracking-wide">Enter target IP or Hostname to check availability.</p>
+            <input type="text" id="target" class="ping-input" value="127.0.0.1" spellcheck="false">
+            <br>
+            <button onclick="runTest()" class="btn-test">Execute Connectivity Test</button>
+        </div>
+
+        <div id="console" class="output-console">
+            // Awaiting system command...
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">What happens if you don't just send an IP? Use a delimiter like `;` to chain a second 'COMMAND'.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">System Shell Spawned</h2>
+        <p class="text-rose-200 mb-8 font-bold uppercase tracking-widest">Command Injection Success</p>
+        <div class="text-2xl font-mono p-4 bg-white/10 rounded-xl">FLAG: command</div>
+    </div>
+
+    <script>
+        const input = document.getElementById('target');
+        const cons = document.getElementById('console');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        function runTest() {
+            const cmd = input.value.trim();
+            cons.innerHTML = `byte@server:~$ ping -c 4 ${cmd}<br>`;
+            
+            setTimeout(() => {
+                if (cmd.includes(';') || cmd.includes('|') || cmd.includes('&')) {
+                    // COMMAND INJECTION SUCCESS
+                    cons.innerHTML += `<br>PING 127.0.0.1 (127.0.0.1): 56 data bytes<br>64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.045 ms<br>--- 127.0.0.1 ping statistics ---<br>4 packets transmitted, 4 packets received, 0.0% packet loss<br><br>`;
+                    cons.innerHTML += `byte@server:~$ executing chained instruction...<br>`;
+                    
+                    setTimeout(() => {
+                        cons.innerHTML += `root:x:0:0:root:/root:/bin/bash<br>`;
+                        cons.innerHTML += `<span class='bg-rose-500 text-white px-1 font-bold'>COMMAND</span>_SUCCESS: Identity confirmed. Local flag detected.`;
+                        
+                        bubble.innerText = "You escaped the ping command! Look for the 'COMMAND' tag.";
+                        const tag = cons.querySelector('.bg-rose-500');
+                        tag.style.cursor = 'pointer';
+                        tag.onclick = handleWin;
+                    }, 1000);
+                } else {
+                    cons.innerHTML += `PING ${cmd} (${cmd}): 56 data bytes<br>64 bytes from ${cmd}: icmp_seq=0 ttl=64 time=0.045 ms<br>64 bytes from ${cmd}: icmp_seq=1 ttl=64 time=0.038 ms<br>--- ${cmd} ping statistics ---<br>2 packets transmitted, 2 packets received, 0.0% packet loss`;
+                }
+            }, 800);
+        }
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 3,
+                    step: 1,
+                    value: 'command'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

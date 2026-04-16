@@ -68,6 +68,37 @@ export const engine = {
     }
   },
 
+  async validateLevel(world, step, value) {
+    this._attempts++;
+    
+    const { state } = await import('./state.js');
+    if (!state.isAuthenticated || !state.user) return false;
+
+    const { auth } = await import('./firebase.js');
+    const idToken = await auth.currentUser.getIdToken();
+
+    try {
+      const response = await fetch('/api/validate-level', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ world, step, value, idToken })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`Level ${world}.${step} validated.`);
+        return true;
+      } else {
+        console.error('Level validation failed:', result.error);
+        return false;
+      }
+    } catch (error) {
+      console.error('Level API Error:', error);
+      return false;
+    }
+  },
+
   _finalizeCompletion(challengeId) {
     // Local state will be updated by the Firestore listener automatically
     console.log(`Challenge ${challengeId} validated by backend.`);

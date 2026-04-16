@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Vuln 2.3</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #051a0a;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #10b981;
+            --font-mono: 'Space Mono', monospace;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 40px; display: flex; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        .side { width: 400px; border-right: 1px solid rgba(16,185,129,0.2); padding: 40px; }
+        .main { flex-grow: 1; padding: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        .inspector-card {
+            width: 100%; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 20px;
+            border: 1px solid rgba(16,185,129,0.1); margin-top: 20px;
+        }
+        .cookie-input {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(16,185,129,0.3);
+            padding: 15px; border-radius: 10px; font-family: var(--font-mono); color: #10b981;
+            font-size: 0.8rem; margin-top: 10px; outline: none;
+        }
+
+        .status-badge { padding: 6px 12px; border-radius: 99px; font-size: 10px; font-weight: 800; text-transform: uppercase; background: rgba(255,255,255,0.1); }
+        .status-guest { color: #94a3b8; }
+        .status-admin { color: #10b981; background: rgba(16,185,129,0.1); }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #064e3b; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <div class="side">
+            <h2 class="text-xs font-black text-emerald-500 uppercase tracking-widest mb-6 font-mono">Session Inspector</h2>
+            <div class="inspector-card">
+                <p class="text-[10px] uppercase font-bold text-slate-500 mb-2">Active Cookie: 'user_session'</p>
+                <input type="text" id="cookie-field" class="cookie-input" value="eydyb2xlIjogImd1ZXN0In0=">
+                <button onclick="applyCookie()" class="w-full bg-emerald-500 text-black font-bold py-3 rounded-lg mt-4 text-sm hover:scale-105 transition-all">Apply Data</button>
+            </div>
+            <div class="mt-10 p-4 border border-white/5 rounded-xl bg-white/5 font-mono text-[10px] text-slate-500 leading-relaxed">
+                <p class="text-white/60 mb-2 font-bold uppercase tracking-wider">Help Tool:</p>
+                <p>Base64 Decoder/Encoder initialized.</p>
+                <p class="mt-4 text-emerald-500/80">Input -> btoa(data)<br>Output -> atob(data)</p>
+            </div>
+        </div>
+        <div class="main">
+            <img src="https://dropshare.42web.io/1/files/zVYAUZDpex.png" class="w-20 mb-8 opacity-20">
+            <h3 class="text-2xl font-black mb-2 tracking-tighter">Identity Management</h3>
+            <p class="text-slate-500 text-sm mb-10">Current Session: <span id="status-badge" class="status-badge status-guest">Guest</span></p>
+            
+            <div class="w-full max-w-sm p-8 bg-white/5 rounded-3xl border border-white/5 text-center">
+                <p class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">Admin Restricted</p>
+                <p class="text-sm italic text-slate-600">You do not have administrative privileges to view this partition.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">Identity isn't just a role, it's a serialized object. Change your 'COOKIE' to get admin access.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Identity Hijacked</h2>
+        <p class="text-black/60 mb-8 font-bold uppercase tracking-widest">Insecure Deserialization Success</p>
+        <div class="text-2xl font-mono p-4 bg-black/10 rounded-xl">FLAG: cookie</div>
+    </div>
+
+    <script>
+        const cookieField = document.getElementById('cookie-field');
+        const badge = document.getElementById('status-badge');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        function applyCookie() {
+            try {
+                const raw = cookieField.value.trim();
+                const decoded = atob(raw);
+                const data = JSON.parse(decoded);
+
+                if (data.role === 'admin') {
+                    badge.innerText = 'Administrator';
+                    badge.classList.remove('status-guest');
+                    badge.classList.add('status-admin');
+                    handleWin();
+                } else if (data.role === 'guest') {
+                    badge.innerText = 'Guest';
+                    bubble.innerText = "You successfully decoded and reapplied it. Now, can you modify the role?";
+                } else {
+                    bubble.innerText = "Unknown role: " + data.role;
+                }
+            } catch (e) {
+                bubble.innerText = "Invalid Base64 or JSON structure. Check your formatting.";
+            }
+        }
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 2,
+                    step: 3,
+                    value: 'cookie'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

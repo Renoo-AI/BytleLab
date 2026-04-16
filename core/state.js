@@ -10,6 +10,11 @@ let _state = {
   user: null,
   appName: 'ByteLearn',
   settings: {},
+  progression: {
+    currentLevel: "0.0",
+    completed: [],
+    xp: 0
+  },
   progress: {
     currentPathId: 'web-basics',
     paths: [

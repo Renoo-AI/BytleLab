@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Vuln 2.2</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #051a0a;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #10b981;
+            --font-mono: 'Space Mono', monospace;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 40px; padding: 60px; text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5); position: relative;
+        }
+
+        .search-container { max-width: 600px; margin: 40px auto; position: relative; }
+        .search-input {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(16,185,129,0.3);
+            padding: 24px 30px; border-radius: 20px; font-family: var(--font-mono); color: white;
+            outline: none; font-size: 1.2rem; transition: all 0.3s;
+        }
+        .search-input:focus { border-color: #10b981; background: rgba(255,255,255,0.08); }
+
+        .results-area { margin-top: 40px; min-height: 200px; padding: 30px; border-radius: 20px; background: rgba(0,0,0,0.2); }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #064e3b; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <h2 class="text-xs font-black text-emerald-500 uppercase tracking-widest mb-4">Code Injection Engine</h2>
+        <h1 class="text-4xl font-black tracking-tighter mb-8">System Search Probe</h1>
+        <p class="text-slate-400 max-w-lg mx-auto mb-12">Identify unsanitized inputs. If you can inject code into the visual layer, you hold the 'XSS' exploit.</p>
+
+        <div class="search-container">
+            <input type="text" id="query" class="search-input" placeholder="Search system logs..." autocomplete="off">
+            <div id="results" class="results-area text-left font-mono text-sm text-slate-500">
+                Awaiting input query...
+            </div>
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">What if the search box just prints whatever you type? Try injecting a script: `<script>alert(1)</script>`</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Script Injected</h2>
+        <p class="text-black/60 mb-8 font-bold uppercase tracking-widest">Cross-Site Manipulation Success</p>
+        <div class="text-2xl font-mono p-4 bg-black/10 rounded-xl">FLAG: xss</div>
+    </div>
+
+    <script>
+        const query = document.getElementById('query');
+        const results = document.getElementById('results');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        query.addEventListener('input', () => {
+            const val = query.value.trim().toLowerCase();
+            
+            // Simulating Unsafe Rendering
+            results.innerHTML = `Searching for: <span class='text-emerald-500'>${query.value}</span><br><br><span class='opacity-40 italic'>No direct matches found in encrypted partition.</span>`;
+
+            // XSS Detection
+            if (val.includes('<script>') || val.includes('alert(') || val.includes('onerror=')) {
+                handleWin();
+            }
+        });
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 2,
+                    step: 2,
+                    value: 'xss'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

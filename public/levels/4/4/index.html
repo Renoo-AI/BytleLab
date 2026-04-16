@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Persist 4.4</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d2b;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #8b5cf6;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px;
+        }
+
+        .user-card {
+            width: 100%; max-width: 440px; background: var(--surface);
+            border: 1px solid rgba(139,92,246,0.2); border-radius: 40px;
+            padding: 48px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        .input-group { text-align: left; margin-bottom: 24px; }
+        .label { display: block; font-size: 10px; font-weight: 800; color: #8b5cf6; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        .input {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(139,92,246,0.2);
+            padding: 15px; border-radius: 12px; font-weight: 600; color: white; outline: none;
+        }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #4c1d95; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="user-card">
+        <h3 class="text-2xl font-black mb-10 tracking-tighter">Create Identity</h3>
+        
+        <div class="input-group">
+            <label class="label">Username</label>
+            <input type="text" id="username" class="input" placeholder="byte_admin">
+        </div>
+        
+        <div class="input-group">
+            <label class="label">Permissions</label>
+            <select id="perm" class="input">
+                <option value="guest">Guest</option>
+                <option value="user">User</option>
+                <option value="admin">Administrator</option>
+            </select>
+        </div>
+
+        <button onclick="checkUser()" class="w-full bg-violet-600 text-white py-4 rounded-xl font-bold mt-6 hover:scale-105 transition-all">Provision User</button>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">A hidden 'USER' account with admin rights is the ultimate stealth. Provision one now.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Account Created</h2>
+        <p class="text-violet-200 mb-8 font-bold uppercase tracking-widest">Shadow Administrator provisioned. Persistence full.</p>
+        <div class="text-2xl font-mono p-4 bg-white/10 rounded-xl">FLAG: user</div>
+    </div>
+
+    <script>
+        const userIn = document.getElementById('username');
+        const permIn = document.getElementById('perm');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        function checkUser() {
+            const user = userIn.value.trim().toLowerCase();
+            const perm = permIn.value;
+
+            if (perm === 'admin' && (user.includes('user') || user.includes('admin'))) {
+                handleWin();
+            } else {
+                bubble.innerText = "You need to create an 'ADMIN' level 'USER' to satisfy the persistence protocol.";
+            }
+        }
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 4,
+                    step: 4,
+                    value: 'user'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

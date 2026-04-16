@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Infiltrate 5.2</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1a05;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #fbbf24;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(251,191,36,0.2);
+            border-radius: 40px; padding: 60px; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* --- MAP UI --- */
+        .network-map {
+            width: 100%; max-width: 500px; position: relative; height: 300px;
+        }
+        .node {
+            position: absolute; width: 60px; height: 60px; background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            transition: all 0.3s;
+        }
+        .node.active { background: #fbbf24; color: black; border-color: transparent; box-shadow: 0 0 30px rgba(251,191,36,0.5); }
+        .node.target { border: 2px dashed #fbbf24; color: #fbbf24; cursor: pointer; }
+        .node.target:hover { background: rgba(251,191,36,0.1); }
+
+        .line { position: absolute; background: rgba(255,255,255,0.1); height: 2px; }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #78350f; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <h2 class="text-xs font-black text-amber-500 uppercase tracking-widest mb-4">Internal Topology Hub</h2>
+        <h1 class="text-3xl font-black mb-12 tracking-tight">Pivot Discovery</h1>
+
+        <div class="network-map">
+            <!-- Web Node -->
+            <div class="node active" style="top: 120px; left: 0;">🌐</div>
+            <div class="line" style="top: 150px; left: 60px; width: 140px;"></div>
+            
+            <!-- Bridge Node -->
+            <div class="node active" style="top: 120px; left: 200px;">🛡️</div>
+            <div class="line" style="top: 150px; left: 260px; width: 140px; transform: rotate(45deg); transform-origin: left centre;"></div>
+            
+            <!-- Target Core -->
+            <div class="node target" style="top: 220px; left: 400px;" onclick="handleWin()">💎</div>
+            <div class="px-4 py-2 bg-white/5 border border-white/10 rounded-lg absolute" style="top: 280px; left: 380px;">
+                <p class="text-[9px] font-black uppercase tracking-widest text-white/30">Target Vector</p>
+                <p class="text-xs font-bold font-mono">192.168.1.50</p>
+            </div>
+        </div>
+
+        <p class="mt-20 text-slate-500 text-sm max-w-sm text-center italic">The "Public" shell was just the beginning. Now you must pivot into the internal segment. Reach the "CORE".</p>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">You've breached the outer wall. Now you must jump to the next server. Pivot into the 'CORE'!</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Network Pivoted</h2>
+        <p class="text-black/60 mb-8 font-bold uppercase tracking-widest">Internal Core Reached. Target identified.</p>
+        <div class="text-2xl font-mono p-4 bg-black/10 rounded-xl">FLAG: core</div>
+    </div>
+
+    <script>
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+        let solved = false;
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 5,
+                    step: 2,
+                    value: 'core'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

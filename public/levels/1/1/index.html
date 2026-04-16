@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Recon 1.1</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a051a;
+            --surface: #120b2e;
+            --primary: #4546d7;
+            --accent: #00f2ff;
+            --text: #ffffff;
+            --border: rgba(255,255,255,0.1);
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* --- TERMINAL GLASS --- */
+        .terminal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+        .terminal-header {
+            background: rgba(255,255,255,0.05);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        .terminal-content {
+            padding: 24px;
+            flex-grow: 1;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #a5b4fc;
+        }
+
+        .input-line {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .prompt { color: var(--accent); font-weight: bold; }
+        .cli-input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: inherit;
+            font-size: inherit;
+            flex-grow: 1;
+            outline: none;
+        }
+
+        /* --- ASSISTANT --- */
+        .assistant {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .bubble {
+            background: white;
+            color: #1e1b4b;
+            padding: 12px 20px;
+            border-radius: 18px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            max-width: 240px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative; line-height: 1.4;
+        }
+        .bubble::after {
+            content: ''; position: absolute; bottom: -8px; right: 20px;
+            border-left: 8px solid transparent; border-right: 8px solid transparent;
+            border-top: 8px solid white;
+        }
+
+        /* --- VICTORY --- */
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary);
+            z-index: 2000; display: none; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+
+        .scan-anim { border-right: 2px solid var(--accent); animation: blink 0.7s infinite; }
+        @keyframes blink { 50% { border-color: transparent } }
+    </style>
+</head>
+<body>
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+            <span class="text-[10px] uppercase font-bold text-white/40 ml-4 tracking-widest">Recon Terminal v1.1</span>
+        </div>
+        <div class="terminal-content" id="terminal-out">
+            <p class="text-white/40 italic mb-4">// System ready. Target: 10.0.0.12</p>
+            <p>Type 'help' for available commands.</p>
+        </div>
+        <div class="terminal-header border-t">
+            <div class="input-line">
+                <span class="prompt">byte@recon:~$</span>
+                <input type="text" id="cli" class="cli-input" autofocus spellcheck="false" autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">Scanning is the first step. Find the open port to proceed.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Port Detected</h2>
+        <p class="text-white/60 mb-8 font-bold uppercase tracking-widest">Infiltration Vector Identified</p>
+        <div class="text-2xl font-mono p-4 bg-white/10 rounded-xl">FLAG: port</div>
+    </div>
+
+    <script>
+        const cli = document.getElementById('cli');
+        const out = document.getElementById('terminal-out');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        cli.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = cli.value.trim().toLowerCase();
+                cli.value = '';
+                processCommand(cmd);
+            }
+        });
+
+        function print(msg, color = '') {
+            const p = document.createElement('p');
+            if (color) p.style.color = color;
+            p.innerHTML = msg;
+            out.appendChild(p);
+            out.scrollTop = out.scrollHeight;
+        }
+
+        function processCommand(cmd) {
+            print(`<span class="text-[#00f2ff]">byte@recon:~$</span> ${cmd}`);
+            
+            if (cmd === 'help') {
+                print("Available commands:");
+                print("  scan [ip]     - Scan target for open ports");
+                print("  clear         - Clear terminal output");
+                print("  help          - Show this message");
+            } else if (cmd === 'clear') {
+                out.innerHTML = '';
+            } else if (cmd.startsWith('scan')) {
+                const parts = cmd.split(' ');
+                if (parts.length < 2) {
+                    print("Error: Specify a target IP. Use 'scan 10.0.0.12'", "#ff5f56");
+                } else {
+                    simulateScan(parts[1]);
+                }
+            } else if (cmd !== '') {
+                print(`Command not found: ${cmd}`, "#ff5f56");
+            }
+        }
+
+        function simulateScan(ip) {
+            print(`Initializing stealth scan on ${ip}...`);
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 20;
+                print(`Scanning... ${progress}%`);
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    showResults();
+                }
+            }, 400);
+        }
+
+        function showResults() {
+            print("<br>Scan results for 10.0.0.12:");
+            print("PORT     STATE   SERVICE");
+            print("21/tcp   CLOSED  ftp");
+            print("22/tcp   CLOSED  ssh");
+            print("80/tcp   <span class="font-bold text-green-400">OPEN</span>    http");
+            print("443/tcp  CLOSED  https");
+            print("<br>Vulnerability check: <span class="text-[#00f2ff]">SUCCESS</span>");
+            print("Key identified: <span class="font-bold underline cursor-pointer" onclick="handleWin()">PORT</span>");
+            
+            bubble.innerText = "Found it! Click the 'PORT' result or type it to finish.";
+        }
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            // Notify parent
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 1,
+                    step: 1,
+                    value: 'port'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+
+        // Also allow typing 'port'
+        cli.addEventListener('input', () => {
+            if (cli.value.toLowerCase() === 'port') {
+                handleWin();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -63,6 +63,21 @@
         "flag": { "type": "string" }
       },
       "required": ["challengeId", "flag"]
+    },
+    "Level": {
+      "title": "Level",
+      "description": "A specific level in a world.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "world": { "type": "number" },
+        "step": { "type": "number" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string" },
+        "points": { "type": "number" }
+      },
+      "required": ["id", "world", "step", "title"]
     }
   },
   "firestore": {
@@ -85,6 +100,10 @@
     "/flags/{challengeId}": {
       "schema": "Flag",
       "description": "Secret flags (Admin only)."
+    },
+    "/levels/{levelId}": {
+      "schema": "Level",
+      "description": "World level metadata."
     }
   }
 }

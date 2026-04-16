@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Vuln 2.4</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #051a0a;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #10b981;
+            --font-mono: 'Space Mono', monospace;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 40px; padding: 60px; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        .path-bar {
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 12px; display: flex; align-items: center; padding: 0 20px; margin-bottom: 40px;
+        }
+        .path-input {
+            flex-grow: 1; background: transparent; border: none; padding: 15px; font-family: var(--font-mono);
+            color: #10b981; outline: none; font-size: 0.9rem;
+        }
+        .file-content {
+            background: rgba(255,255,255,0.02); min-height: 300px; border-radius: 20px;
+            padding: 40px; font-family: var(--font-mono); line-height: 1.8; color: #a5b4fc;
+            overflow-y: auto; border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #064e3b; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <h2 class="text-xs font-black text-emerald-500 uppercase tracking-widest mb-4">Secure Local File Viewer</h2>
+        
+        <div class="path-bar">
+            <span class="text-white/30 text-xs font-bold mr-2">DOCS:</span>
+            <input type="text" id="path-input" class="path-input" value="public/reports/intro.txt" spellcheck="false">
+        </div>
+
+        <div id="file-viewer" class="file-content">
+            // Loading virtual file system...<br>
+            // Accessing public/reports/intro.txt...<br><br>
+            Welcome to the National Bank data portal. Use the bar above to navigate internal report files.
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">The system only wants you to see 'public' files. Can you traverse the 'PATH' to reach the system root? Try: `../../etc/passwd`</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Path Traversed</h2>
+        <p class="text-black/60 mb-8 font-bold uppercase tracking-widest">Root Partition Exposed</p>
+        <div class="text-2xl font-mono p-4 bg-black/10 rounded-xl">FLAG: path</div>
+    </div>
+
+    <script>
+        const input = document.getElementById('path-input');
+        const viewer = document.getElementById('file-viewer');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        const VFS = {
+            'public/reports/intro.txt': "Welcome to the National Bank data portal. Use the bar above to navigate internal report files.",
+            'public/reports/q1.txt': "Q1 Earnings: Excellent growth in the crypto-sector. +14% revenue.",
+            'etc/passwd': "root:x:0:0:root:/root:/bin/bash\nbin:x:1:1:bin:/bin:/sbin/nologin\ndaemon:x:2:2:daemon:/sbin:/sbin/nologin\n<span class='bg-emerald-500 text-black px-1 font-bold'>PATH</span>:vulnerability:found:true"
+        };
+
+        input.addEventListener('input', () => {
+            const path = input.value.trim();
+            // Simple normalization for the lab
+            const normalized = path.replace(/^\.\.\/\.\.\//, '').replace(/^\//, '');
+            
+            if (VFS[normalized]) {
+                viewer.innerHTML = VFS[normalized].replace(/\n/g, '<br>');
+                if (normalized === 'etc/passwd') {
+                    const tag = viewer.querySelector('.bg-emerald-500');
+                    tag.style.cursor = 'pointer';
+                    tag.onclick = handleWin;
+                    bubble.innerText = "You found it! The system passwd file is exposed. Click the tag.";
+                }
+            } else {
+                viewer.innerHTML = `<span class="text-red-500">Error: File not found at '${path}'</span><br><br><span class="opacity-30">VFS: Accessing outside of web root...</span>`;
+            }
+        });
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 2,
+                    step: 4,
+                    value: 'path'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

@@ -59,7 +59,7 @@ export class Profile {
             <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Flags</span>
           </div>
           <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center">
-            <span class="text-xl font-black text-tertiary">${state.completed?.length || 0}</span>
+            <span class="text-xl font-black text-tertiary">${state.user?.completed?.length || 0}</span>
             <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Missions</span>
           </div>
         </section>

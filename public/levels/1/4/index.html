@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Recon 1.4</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a051a;
+            --surface: #120b2e;
+            --primary: #4546d7;
+            --accent: #eab308;
+            --text: #ffffff;
+            --border: rgba(255,255,255,0.1);
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .terminal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+        .terminal-header {
+            background: rgba(255,255,255,0.05);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        .terminal-content {
+            padding: 24px;
+            flex-grow: 1;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #d1d5db;
+        }
+
+        .input-line {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .prompt { color: #eab308; font-weight: bold; }
+        .cli-input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: inherit;
+            font-size: inherit;
+            flex-grow: 1;
+            outline: none;
+        }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #1e1b4b; padding: 12px 20px; border-radius: 18px;
+            font-weight: 600; font-size: 0.9rem; max-width: 240px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--accent);
+            z-index: 2000; display: none; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+            <span class="text-[10px] uppercase font-bold text-white/40 ml-4 tracking-widest">Directory Fuzzer v1.4</span>
+        </div>
+        <div class="terminal-content" id="terminal-out">
+            <p class="text-white/40 italic mb-4">// Bruteforcing hidden web paths...</p>
+            <p>Commands: 'fuzz', 'help'</p>
+        </div>
+        <div class="terminal-header border-t">
+            <div class="input-line">
+                <span class="prompt">byte@recon:~$</span>
+                <input type="text" id="cli" class="cli-input" autofocus spellcheck="false" autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">Most websites have files they don't want you to see. Use 'fuzz' to perform a 'BRUTE' force search.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Paths Discovered</h2>
+        <p class="text-black/60 mb-8 font-bold uppercase tracking-widest">Hidden Structure Exposed</p>
+        <div class="text-2xl font-mono p-4 bg-black/10 rounded-xl">FLAG: brute</div>
+    </div>
+
+    <script>
+        const cli = document.getElementById('cli');
+        const out = document.getElementById('terminal-out');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        cli.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = cli.value.trim().toLowerCase();
+                cli.value = '';
+                processCommand(cmd);
+            }
+        });
+
+        function print(msg, color = '') {
+            const p = document.createElement('p');
+            if (color) p.style.color = color;
+            p.innerHTML = msg;
+            out.appendChild(p);
+            out.scrollTop = out.scrollHeight;
+        }
+
+        function processCommand(cmd) {
+            print(`<span class="text-[#eab308]">byte@recon:~$</span> ${cmd}`);
+            
+            if (cmd === 'help') {
+                print("Commands: 'fuzz', 'clear'");
+            } else if (cmd === 'clear') {
+                out.innerHTML = '';
+            } else if (cmd === 'fuzz') {
+                runFuzzing();
+            } else if (cmd !== '') {
+                print(`Unknown command. Type 'fuzz' to start investigation.`, "#ef4444");
+            }
+        }
+
+        function runFuzzing() {
+            const paths = ['/images', '/js', '/css', '/includes', '/.admin', '/config', '/uploads', '/temp'];
+            print("Beginning dictionary attack on '/'...");
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                const path = paths[i];
+                if (i % 2 === 0) {
+                    print(`GET ${path} ... <span class='text-white/30'>404 NOT FOUND</span>`);
+                } else if (path === '/.admin') {
+                    print(`GET ${path} ... <span class='text-emerald-500 font-bold'>200 FOUND</span>`);
+                    print(`<span class='bg-emerald-500 text-black px-1 font-bold'>BRUTE</span> method success.`);
+                    clearInterval(interval);
+                    
+                    bubble.innerText = "Target hit! '/.admin' is visible. Click the 'BRUTE' tag to win.";
+                    const tag = out.querySelector('.bg-emerald-500');
+                    tag.style.cursor = 'pointer';
+                    tag.onclick = handleWin;
+                } else {
+                    print(`GET ${path} ... <span class='text-white/30'>403 FORBIDDEN</span>`);
+                }
+                
+                i++;
+                if (i >= paths.length && !solved) {
+                    clearInterval(interval);
+                    print("Attack complete. No critical paths identified.");
+                }
+            }, 500);
+        }
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 1,
+                    step: 4,
+                    value: 'brute'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+
+        cli.addEventListener('input', () => {
+            if (cli.value.toLowerCase() === 'brute') {
+                handleWin();
+            }
+        });
+    </script>
+</body>
+</html>

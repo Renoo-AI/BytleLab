@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Discovery 0.5</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fdfdfe;
+            --text: #0f172a;
+            --primary: #4546d7;
+            --secondary: #64748b;
+            --border: #f1f5f9;
+            --font-main: 'Be Vietnam Pro', sans-serif;
+            --font-display: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed; inset: 0; background: #0f172a; z-index: 4000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .splash-logo { width: 120px; height: 120px; animation: pulse-logo 2s infinite ease-in-out; }
+
+        @keyframes pulse-logo {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .loading-bar-container { width: 200px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; margin-top: 32px; overflow: hidden; }
+        .loading-bar-fill { height: 100%; background: var(--primary); width: 0%; transition: width 2.5s ease-in-out; }
+
+        /* --- HEADER --- */
+        #header-nav {
+            height: 80px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center;
+            background: white; border-bottom: 1px solid var(--border); z-index: 100; opacity: 0; transition: opacity 0.5s ease;
+        }
+
+        /* --- DASHBOARD LAYOUT --- */
+        #app-container {
+            display: flex; flex-grow: 1; overflow: hidden; opacity: 0; transition: opacity 0.5s ease;
+        }
+
+        .sidebar {
+            width: 280px; background: white; border-right: 1px solid var(--border);
+            padding: 32px 16px; display: flex; flex-direction: column; gap: 6px;
+        }
+
+        .nav-link {
+            padding: 14px 16px; border-radius: 12px; font-weight: 600; color: var(--secondary);
+            display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer;
+        }
+        .nav-link:hover { background: #f8fafc; color: var(--text); }
+        .nav-link.active { background: #eef2ff; color: var(--primary); }
+
+        .viewport { flex-grow: 1; padding: 48px 64px; overflow-y: auto; background: #fafbfd; }
+
+        .view-section { display: none; animation: fadeIn 0.4s ease-out; }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- UI COMPONENTS --- */
+        .glass-card {
+            background: white; padding: 32px; border-radius: 32px; border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        /* Custom Toggle Switch */
+        .toggle-checkbox:checked { right: 0; border-color: var(--primary); }
+        .toggle-checkbox:checked + .toggle-label { background-color: var(--primary); }
+        .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); border-color: white; }
+        
+        .toggle-label {
+            width: 50px; height: 28px; background-color: #cbd5e1; border-radius: 9999px;
+            position: relative; cursor: pointer; transition: background-color 0.3s;
+        }
+        .toggle-label:after {
+            content: ''; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px;
+            background-color: white; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Credit Card visually */
+        .credit-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white; border-radius: 20px; padding: 24px; position: relative; overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 340px; height: 200px;
+        }
+        .credit-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); pointer-events: none;
+        }
+
+        /* --- GLITCH FINALE --- */
+        @keyframes brutalGlitch {
+            0% { transform: translate(0); filter: invert(0); }
+            20% { transform: translate(-10px, 10px); filter: invert(1) hue-rotate(90deg); }
+            40% { transform: translate(10px, -10px); filter: invert(0); }
+            60% { transform: translate(-10px, -10px); filter: invert(1) contrast(200%); }
+            80% { transform: translate(10px, 10px); filter: invert(0); }
+            100% { transform: translate(0); filter: invert(0); }
+        }
+        .glitch-active { animation: brutalGlitch 0.3s cubic-bezier(.25, .46, .45, .94) both; }
+
+        #final-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 5000; display: none;
+            flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 40px;
+        }
+
+        .msg-line {
+            font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; letter-spacing: -1px;
+            margin-bottom: 1.5rem; opacity: 0; transform: translateY(15px); transition: all 1.2s ease;
+        }
+        .msg-line.visible { opacity: 1; transform: translateY(0); }
+
+        #btn-next {
+            margin-top: 4rem; background: white; color: black; padding: 18px 48px; border-radius: 99px;
+            font-weight: 800; font-family: var(--font-display); font-size: 1.2rem; opacity: 0;
+            transition: all 0.5s ease; cursor: pointer; border: none;
+        }
+        #btn-next:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(255,255,255,0.25); }
+
+        /* --- ASSISTANT HUD --- */
+        .assistant-container {
+            position: fixed; bottom: 40px; right: 40px; display: flex; flex-direction: column;
+            align-items: flex-end; gap: 12px; z-index: 1000; max-width: 280px; opacity: 0;
+            transform: translateY(10px); transition: all 0.6s ease;
+        }
+
+        .bubble {
+            background: white; padding: 16px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            font-size: 0.95rem; font-weight: 600; color: #475569; position: relative;
+            transition: opacity 0.4s ease, transform 0.4s ease; opacity: 1; transform: scale(1);
+        }
+
+        .bubble.hidden-msg { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .bubble::after {
+            content: ''; position: absolute; bottom: -8px; right: 20px; border-left: 8px solid transparent;
+            border-right: 8px solid transparent; border-top: 8px solid white;
+        }
+
+        .mascot-img { width: 72px; height: 72px; object-fit: contain; transition: all 0.5s ease; }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <img src="https://dropshare.42web.io/1/files/UIi3dXms4F.png" class="splash-logo" alt="ByteLearn">
+        <div class="loading-bar-container">
+            <div id="splash-bar" class="loading-bar-fill"></div>
+        </div>
+        <p class="text-white/40 text-xs font-bold mt-4 tracking-widest uppercase">Initializing Secure Session</p>
+    </div>
+
+    <!-- Final Truth Overlay -->
+    <div id="final-overlay">
+        <div id="m1" class="msg-line">You changed the interface.</div>
+        <div id="m2" class="msg-line">You changed what you saw.</div>
+        <div id="m3" class="msg-line">Not what exists.</div>
+        <button id="btn-next" onclick="window.location.href='../world_1_intro.html'">[ Enter World 1 ]</button>
+    </div>
+
+    <!-- Header -->
+    <header id="header-nav">
+        <div class="flex items-center gap-3">
+            <img src="https://dropshare.42web.io/1/files/UIi3dXms4F.png" class="w-10 h-10" alt="ByteLearn">
+            <span class="font-extrabold font-display text-2xl tracking-tighter">ByteLearn</span>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="text-right">
+                <p id="username" class="font-bold text-sm outline-none" data-watchable="true">John Carter</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Premium Member</p>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600">JC</div>
+        </div>
+    </header>
+
+    <!-- Main Application -->
+    <div id="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="nav-link active" data-view="dashboard">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                Dashboard
+            </div>
+            <div class="nav-link" data-view="accounts">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                Accounts
+            </div>
+            <div class="nav-link" data-view="payments">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                Payments
+            </div>
+            <div class="nav-link" data-view="cards">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                Cards
+            </div>
+            <div class="nav-link" data-view="settings">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Settings
+            </div>
+        </nav>
+
+        <!-- Views Container -->
+        <main class="viewport">
+            
+            <!-- 1. DASHBOARD VIEW (The Hackable Area) -->
+            <div id="view-dashboard" class="view-section active max-w-4xl mx-auto">
+                <h1 class="text-3xl font-extrabold mb-2 tracking-tight font-display">Financial Summary</h1>
+                <p class="text-slate-400 font-medium mb-8">Real-time status of your active banking assets.</p>
+
+                <div class="glass-card mb-8">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Net Assets</p>
+                    <p id="balance" class="font-display text-[3.5rem] font-black tracking-tighter mb-4 outline-none" data-watchable="true">$4,200.00</p>
+                    <div class="flex gap-2">
+                        <span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-wider">Verified</span>
+                        <span class="px-3 py-1 bg-slate-50 text-slate-400 rounded-full text-[10px] font-bold uppercase tracking-wider">NB-00293</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-0 overflow-hidden">
+                    <div class="bg-slate-50 px-8 py-5 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="font-extrabold text-lg">Recent Transactions</h3>
+                        <span class="text-sm font-bold text-primary cursor-pointer">View All</span>
+                    </div>
+                    
+                    <!-- Transactions List with Brand Logos -->
+                    <div class="divide-y divide-slate-100">
+                        <!-- Amazon -->
+                        <div class="flex justify-between items-center px-8 py-5 hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-[#FF9900]/10 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-[#FF9900]" viewBox="0 0 24 24" fill="currentColor"><path d="M13.68 18.33c-1.87.89-4.22 1.34-6.3 1.34-2.12 0-3.95-.3-5.26-.81a.34.34 0 0 0-.46.33c.04 1.15 1.54 2.65 4.96 3.51 2.37.6 5.22.61 7.64-.13 1.83-.55 2.76-1.53 2.82-1.63a.35.35 0 0 0-.17-.55c-.71-.3-2.14-1.21-3.23-2.06z"/><path d="M19.5 17.5c-1.04-.54-2.82-.4-3.87-.22a.35.35 0 0 0-.19.6c1.17.92 2.45 1.39 3.09 1.58.45.13.78-.14.7-.54-.15-.75-.4-1.12-.4-1.12a.35.35 0 0 0-.33-.3z"/></svg>
+                                </div>
+                                <div><p class="font-bold text-slate-800">Amazon Marketplace</p><p class="text-xs text-slate-400 font-medium">Retail • Today, 2:15 PM</p></div>
+                            </div>
+                            <span class="font-mono font-bold text-rose-500" data-watchable="true">-$43.00</span>
+                        </div>
+                        
+                        <!-- Salary -->
+                        <div class="flex justify-between items-center px-8 py-5 hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <div><p class="font-bold text-slate-800">Corporate Salary</p><p class="text-xs text-slate-400 font-medium">Direct Deposit • Yesterday</p></div>
+                            </div>
+                            <span class="font-mono font-bold text-emerald-500" data-watchable="true">+$3,200.00</span>
+                        </div>
+
+                        <!-- Netflix -->
+                        <div class="flex justify-between items-center px-8 py-5 hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-[#E50914]/10 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-[#E50914]" viewBox="0 0 24 24" fill="currentColor"><path d="M5.398 22.102l1.666-16.204h3.69l-1.665 16.204H5.398zm6.55-16.204h3.687l3.523 11.53-1.425 4.674-5.785-16.204zm5.534 16.204l1.666-16.204h3.69l-1.665 16.204h-3.69z"/></svg>
+                                </div>
+                                <div><p class="font-bold text-slate-800">Netflix Inc.</p><p class="text-xs text-slate-400 font-medium">Digital Sub • Apr 15</p></div>
+                            </div>
+                            <span class="font-mono font-bold text-rose-500" data-watchable="true">-$15.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. ACCOUNTS VIEW -->
+            <div id="view-accounts" class="view-section max-w-4xl mx-auto">
+                <h1 class="text-3xl font-extrabold mb-2 tracking-tight font-display">Linked Accounts</h1>
+                <p class="text-slate-400 font-medium mb-8">Manage your checking and savings.</p>
+                <div class="grid gap-6">
+                    <div class="glass-card flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-lg">Everyday Checking</p>
+                            <p class="text-sm font-mono text-slate-400">.... 8829</p>
+                        </div>
+                        <p class="font-bold text-2xl font-display">$1,040.50</p>
+                    </div>
+                    <div class="glass-card flex justify-between items-center border-primary/20 bg-indigo-50/30">
+                        <div>
+                            <p class="font-bold text-lg text-primary">High-Yield Savings</p>
+                            <p class="text-sm font-mono text-slate-400">.... 0293</p>
+                        </div>
+                        <p class="font-bold text-2xl font-display text-primary">$4,200.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. PAYMENTS VIEW -->
+            <div id="view-payments" class="view-section max-w-2xl mx-auto">
+                <h1 class="text-3xl font-extrabold mb-2 tracking-tight font-display">Send Money</h1>
+                <p class="text-slate-400 font-medium mb-8">Instant transfers to any account.</p>
+                <div class="glass-card">
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Recipient</label>
+                        <input type="text" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-primary font-medium" placeholder="Name, Email, or Account #">
+                    </div>
+                    <div class="mb-8">
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Amount</label>
+                        <input type="text" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-primary font-bold text-2xl font-mono" placeholder="$0.00">
+                    </div>
+                    <button class="w-full bg-primary hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition-colors" onclick="document.getElementById('btn-txt').innerText='Processing...'; setTimeout(()=>document.getElementById('btn-txt').innerText='Send Payment', 1000)"><span id="btn-txt">Send Payment</span></button>
+                </div>
+            </div>
+
+            <!-- 4. CARDS VIEW -->
+            <div id="view-cards" class="view-section max-w-4xl mx-auto">
+                <h1 class="text-3xl font-extrabold mb-2 tracking-tight font-display">Your Cards</h1>
+                <p class="text-slate-400 font-medium mb-8">Manage physical and virtual cards.</p>
+                <div class="flex gap-10">
+                    <!-- The Card -->
+                    <div class="credit-card shrink-0">
+                        <div class="flex justify-between items-start mb-10">
+                            <svg class="w-10 h-10 text-yellow-400 opacity-80" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4V4zm2 4v2h4V8H6zm6 0v2h4V8h-4zm6 0v2h2V8h-2zM6 12v2h4v-2H6zm6 0v2h4v-2h-4z"/></svg>
+                            <span class="font-bold italic text-lg tracking-wider">NationalBank</span>
+                        </div>
+                        <div class="font-mono text-xl tracking-widest mb-2 opacity-90">**** **** **** 8829</div>
+                        <div class="flex justify-between text-xs opacity-70 font-mono">
+                            <span>J. CARTER</span>
+                            <span>12/28</span>
+                        </div>
+                    </div>
+                    <!-- Card Controls -->
+                    <div class="glass-card flex-grow">
+                        <h3 class="font-bold mb-6">Card Controls</h3>
+                        <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                            <span class="font-medium text-slate-600">Freeze Card</span>
+                            <div class="relative">
+                                <input type="checkbox" id="freeze-toggle" class="sr-only toggle-checkbox">
+                                <label for="freeze-toggle" class="toggle-label block"></label>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between py-3">
+                            <span class="font-medium text-slate-600">Online Payments</span>
+                            <div class="relative">
+                                <input type="checkbox" id="online-toggle" class="sr-only toggle-checkbox" checked>
+                                <label for="online-toggle" class="toggle-label block"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. SETTINGS VIEW -->
+            <div id="view-settings" class="view-section max-w-3xl mx-auto">
+                <h1 class="text-3xl font-extrabold mb-2 tracking-tight font-display">Preferences</h1>
+                <p class="text-slate-400 font-medium mb-8">System and security configurations.</p>
+                <div class="glass-card">
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-800">Two-Factor Authentication</p>
+                                <p class="text-sm text-slate-400">Require SMS code on login.</p>
+                            </div>
+                            <div class="relative">
+                                <input type="checkbox" id="2fa-toggle" class="sr-only toggle-checkbox" checked>
+                                <label for="2fa-toggle" class="toggle-label block"></label>
+                            </div>
+                        </div>
+                        <div class="h-px bg-slate-100"></div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-800">Email Notifications</p>
+                                <p class="text-sm text-slate-400">Receive alerts for transactions.</p>
+                            </div>
+                            <div class="relative">
+                                <input type="checkbox" id="notif-toggle" class="sr-only toggle-checkbox" checked>
+                                <label for="notif-toggle" class="toggle-label block"></label>
+                            </div>
+                        </div>
+                        <div class="h-px bg-slate-100"></div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-800">Dark Mode</p>
+                                <p class="text-sm text-slate-400">Switch application theme.</p>
+                            </div>
+                            <div class="relative">
+                                <input type="checkbox" id="dark-toggle" class="sr-only toggle-checkbox">
+                                <label for="dark-toggle" class="toggle-label block"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Assistant: Byte -->
+    <div id="assistant" class="assistant-container">
+        <div id="bubble-container" class="bubble hidden-msg">
+            <p id="talk-text"></p>
+        </div>
+        <img id="mascot" src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="mascot-img" alt="Byte">
+    </div>
+
+    <script>
+        const splash = document.getElementById('splash-screen');
+        const splashBar = document.getElementById('splash-bar');
+        const header = document.getElementById('header-nav');
+        const app = document.getElementById('app-container');
+        const assistant = document.getElementById('assistant');
+        const overlay = document.getElementById('final-overlay');
+        const talkText = document.getElementById('talk-text');
+        const bubble = document.getElementById('bubble-container');
+        
+        const originals = new Map();
+        
+        let solved = false;
+        let talkTimeout;
+        
+        // Track specific edits
+        let editedName = false;
+        let editedBalance = false;
+        let firstEditTriggered = false;
+
+        window.onload = () => {
+            // Simulate Loading
+            setTimeout(() => {
+                splashBar.style.width = '100%';
+                setTimeout(() => {
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        header.style.opacity = '1';
+                        app.style.opacity = '1';
+                        assistant.style.opacity = '1';
+                        assistant.style.transform = 'translateY(0)';
+                        
+                        setTimeout(() => {
+                            speak("The system looks locked. But what happens if you change your identity and your balance?", true);
+                        }, 500);
+                    }, 800);
+                }, 2500);
+            }, 500);
+
+            initNavigation();
+            captureOriginals();
+            startMutationObserver();
+        };
+
+        function speak(text, persist = false) {
+            if (solved && !persist) return;
+            clearTimeout(talkTimeout);
+            talkText.innerText = text;
+            bubble.classList.remove('hidden-msg');
+            
+            if (!persist) {
+                talkTimeout = setTimeout(() => {
+                    bubble.classList.add('hidden-msg');
+                }, 6000);
+            }
+        }
+
+        function initNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    const targetView = link.dataset.view;
+                    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+                    document.getElementById('view-' + targetView).classList.add('active');
+
+                    // Byte's contextual guidance
+                    if (targetView !== 'dashboard' && !solved) {
+                        speak("The goal is not here. Return to the dashboard and change the data.");
+                    } else if (targetView === 'dashboard' && !solved) {
+                        speak("Good. Now look at your identity and balance in the code.");
+                    }
+                });
+            });
+        }
+
+        function captureOriginals() {
+            document.querySelectorAll('[data-watchable="true"]').forEach(el => {
+                originals.set(el, el.innerHTML);
+            });
+        }
+
+        function startMutationObserver() {
+            const observer = new MutationObserver((mutations) => {
+                if (solved) return;
+                
+                mutations.forEach(m => {
+                    let target = m.target;
+                    if (target.nodeType === Node.TEXT_NODE) target = target.parentElement;
+                    
+                    if (target && target.dataset?.watchable === 'true') {
+                        
+                        if (!firstEditTriggered) {
+                            firstEditTriggered = true;
+                            speak("Something changed... The system didn't stop you.");
+                        }
+
+                        if (target.id === 'username') editedName = true;
+                        if (target.id === 'balance') editedBalance = true;
+
+                        // THE WIN CONDITION: Both Name and Balance changed
+                        if (editedName && editedBalance && !solved) {
+                            solved = true;
+                            
+                            // Notify parent ByteLearn platform of completion
+                            if (window.parent) {
+                                window.parent.postMessage({
+                                    type: 'LEVEL_COMPLETE',
+                                    world: 0,
+                                    step: 5,
+                                    value: 'control'
+                                }, '*');
+                            }
+
+                            speak("Critical values altered. Too much manipulation detected...", true);
+                            triggerEnding();
+                        }
+                    }
+                });
+            });
+            observer.observe(document.getElementById('view-dashboard'), { characterData: true, childList: true, subtree: true });
+            observer.observe(document.getElementById('header-nav'), { characterData: true, childList: true, subtree: true });
+        }
+
+        function triggerEnding() {
+            setTimeout(() => {
+                // 1. Brutal Glitch
+                document.body.classList.add('glitch-active');
+                
+                // 2. Snap-back
+                originals.forEach((val, el) => { el.style.transition = 'none'; el.innerHTML = val; });
+                
+                // 3. Cut to black instantly
+                setTimeout(() => {
+                    document.body.classList.remove('glitch-active');
+                    app.style.display = 'none';
+                    header.style.display = 'none';
+                    assistant.style.display = 'none';
+                    overlay.style.display = 'flex';
+                    playFinale();
+                }, 200);
+
+            }, 1500);
+        }
+
+        async function playFinale() {
+            const delay = ms => new Promise(r => setTimeout(r, ms));
+            await delay(800);
+            document.getElementById('m1').classList.add('visible');
+            await delay(2500);
+            document.getElementById('m2').classList.add('visible');
+            await delay(2500);
+            document.getElementById('m3').classList.add('visible');
+            await delay(2000);
+            document.getElementById('btn-next').style.opacity = '1';
+        }
+    </script>
+</body>
+</html>
+
+
+/* edits
+Amazon url image ="https://images.icon-icons.com/2429/PNG/512/amazon_logo_icon_147320.png"
+
+netflix url image "https://static.vecteezy.com/system/resources/previews/017/396/814/non_2x/netflix-mobile-application-logo-free-png.png"
+
+Level 0.5 — The System Believes You
+1. UI Structure
+Full bank dashboard. The most visually complete screen in World 0.
+
+
+  ┌────────────────────────────────────────┐  │  National Bank            John Carter  │  ├────────────────────────────────────────┤  │  Balance:        $4,200.00             │  │  Account:        NB-00293             │  ├────────────────────────────────────────┤  │  Recent Transactions                   │  │  ─────────────────────────────────     │  │  Amazon          -$43.00              │  │  Salary          +$3,200.00           │  │  Netflix         -$15.00              │  ├────────────────────────────────────────┤  │  Security Status:    ● Protected       │  │  System integrity:   verified          │  └────────────────────────────────────────┘
+No buttons inviting interaction. No visible cracks. The system looks complete and closed.
+2. DOM Structure
+
+
+html
+
+<div id="dashboard">  <span id="username" data-watchable="true">John Carter</span>  <span id="balance" data-watchable="true">$4,200.00</span>  <span id="account-num">NB-00293</span>  <ul id="transactions">    <li data-watchable="true">Amazon — -$43.00</li>    <li data-watchable="true">Salary — +$3,200.00</li>    <li data-watchable="true">Netflix — -$15.00</li>  </ul>  <span id="security-status" data-watchable="true">Protected</span>  <span id="integrity" data-watchable="true">verified</span></div>
+MutationObserver watches all elements with data-watchable="true" for characterData and childList changes. Internal counter starts at 0. Each unique element modified increments by 1. At 3, the final sequence triggers.
+3. Hidden Mechanic
+Every visible value is a raw DOM text node. No value is protected. No element fires a warning on edit. The system appears to respond to nothing — until it does. The observer is silent until the threshold. The user has no indication a counter exists.
+4. Curiosity Trigger
+The completeness of the interface — and the user's own history. After four levels of finding hidden things, the user arrives at a surface with no visible anomaly. But they now know how to look. The security labels — "Protected" and "verified" — are particularly inviting. They are claims. Claims can be tested.
+5. Expected User Path
+Inspect elements → edit balance → change username → modify a transaction → change "Protected" to something else → change "verified" to "unverified" → at the third modification, the sequence begins mid-edit or immediately after.
+6. Success Condition
+3 distinct data-watchable elements have their text content modified by user action. Observer increments on each unique element — same element edited multiple times counts as 1. Threshold: 3.
+7. System Response
+At threshold, a 1.5 second pause — nothing happens, which is slightly unsettling. Then every modified element reverts simultaneously, with no animation, no transition. Instant reset. The values snap back. Then, centered overlay, black background, white text, appearing line by line:
+
+
+You changed the interface.
+2 second pause.
+
+
+The system noticed nothing.
+2 second pause.
+
+
+Nothing you did here was real.
+3 second pause. Then, smaller text below:
+
+
+Ready to go deeper?
+Single button appears beneath:
+
+
+[ Enter World 1 ]
+8. Timing / Feel
+
+All edits: instant visual feedback, no system response
+Threshold moment: 1.5s silence after 3rd edit — the gap is the signal
+Reset: instantaneous, no animation — jarring by design
+Text lines: appear sequentially with deliberate pauses — not fast, not slow
+Final button: fades in 400ms after last line
+No music. No sound. Silence throughout.
+got it 
+*/

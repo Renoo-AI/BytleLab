@@ -5,8 +5,10 @@ export class Home {
   constructor() {
     this.leaderboard = [];
     this.challenges = [];
+    this.currentLevelData = null;
     this.isLoadingLeaderboard = true;
     this.isLoadingChallenges = true;
+    this.isLoadingLevel = true;
   }
 
   async onMount() {
@@ -16,11 +18,18 @@ export class Home {
     this.challenges = await firestore.getChallenges();
     this.isLoadingChallenges = false;
 
+    const currentLevelId = state.user?.currentLevel || "0.0";
+    this.currentLevelData = await firestore.getLevel(currentLevelId);
+    this.isLoadingLevel = false;
+
     const lbContainer = document.getElementById('leaderboard-container');
     if (lbContainer) lbContainer.innerHTML = this.renderLeaderboard();
 
     const tracksContainer = document.getElementById('tracks-container');
     if (tracksContainer) tracksContainer.innerHTML = this.renderTracks();
+
+    const missionContainer = document.getElementById('mission-container');
+    if (missionContainer) missionContainer.innerHTML = this.renderActiveMission();
   }
 
   render() {
@@ -34,10 +43,6 @@ export class Home {
     }
 
     setTimeout(() => this.onMount(), 100);
-
-    const currentPath = this.challenges.find(p => p.id === state.progress.currentPathId) || this.challenges[0] || { title: 'No Active Mission', icon: 'terminal' };
-    const isCompleted = state.user?.completed?.includes(currentPath.id);
-    const progress = isCompleted ? 100 : 0;
 
     return `
       <div class="container animate-fade-in space-y-10 py-8">
@@ -59,49 +64,8 @@ export class Home {
         <!-- Main Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Active Path Card -->
-          <div class="lg:col-span-2 space-y-6">
-            <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 relative overflow-hidden group">
-              <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <span class="material-symbols-outlined text-[160px]">${currentPath.icon || 'terminal'}</span>
-              </div>
-              
-              <div class="relative z-10 space-y-8">
-                <div class="space-y-2">
-                  <div class="flex items-center gap-2 text-primary">
-                    <span class="material-symbols-outlined text-sm">terminal</span>
-                    <span class="text-xs font-bold uppercase tracking-widest">Active Mission</span>
-                  </div>
-                  <h2 class="text-3xl font-black text-on-surface tracking-tight">${currentPath.title}</h2>
-                </div>
-
-                <div class="space-y-4">
-                  <div class="flex justify-between items-end font-mono text-xs">
-                    <span class="text-on-surface-variant uppercase tracking-widest">Progress Analysis</span>
-                    <span class="text-primary font-bold">${progress}%</span>
-                  </div>
-                  <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
-                    <div class="h-full bg-primary transition-all duration-1000" style="width: ${progress}%"></div>
-                  </div>
-                </div>
-
-                <a href="/paths" data-link class="inline-flex items-center gap-3 bg-on-surface text-surface px-8 py-4 rounded-xl font-bold hover:bg-primary hover:text-on-primary transition-all active:scale-95">
-                  <span>Resume Operations</span>
-                  <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                </a>
-              </div>
-            </div>
-
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-2 gap-4">
-              <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 flex flex-col justify-between h-32">
-                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Level Status</span>
-                <div class="text-3xl font-black text-on-surface">${state.user.level}</div>
-              </div>
-              <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 flex flex-col justify-between h-32">
-                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Flags Captured</span>
-                <div class="text-3xl font-black text-on-surface">${state.user.flags || 0}</div>
-              </div>
-            </div>
+          <div id="mission-container" class="lg:col-span-2 space-y-6">
+            ${this.renderActiveMission()}
           </div>
 
           <!-- Sidebar -->
@@ -129,6 +93,67 @@ export class Home {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderActiveMission() {
+    if (this.isLoadingLevel) {
+      return `
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-20 flex flex-col items-center justify-center">
+          <div class="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+          <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Syncing Active Mission...</span>
+        </div>
+      `;
+    }
+
+    const level = this.currentLevelData || { title: 'No Active Mission', world: 0, step: 0, icon: 'terminal' };
+    const [world, step] = (state.user?.currentLevel || "0.0").split('.');
+    const isCompleted = state.user?.completed?.includes(state.user?.currentLevel);
+    const progress = isCompleted ? 100 : 0;
+
+    return `
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+          <span class="material-symbols-outlined text-[160px]">${level.icon || 'terminal'}</span>
+        </div>
+        
+        <div class="relative z-10 space-y-8">
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 text-primary">
+              <span class="material-symbols-outlined text-sm">terminal</span>
+              <span class="text-xs font-bold uppercase tracking-widest">Active Mission: World ${world}</span>
+            </div>
+            <h2 class="text-3xl font-black text-on-surface tracking-tight">${level.title}</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex justify-between items-end font-mono text-xs">
+              <span class="text-on-surface-variant uppercase tracking-widest">Step ${step} Progress</span>
+              <span class="text-primary font-bold">${progress}%</span>
+            </div>
+            <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+              <div class="h-full bg-primary transition-all duration-1000" style="width: ${progress}%"></div>
+            </div>
+          </div>
+
+          <a href="/levels/${world}/${step}" data-link class="inline-flex items-center gap-3 bg-on-surface text-surface px-8 py-4 rounded-xl font-bold hover:bg-primary hover:text-on-primary transition-all active:scale-95">
+            <span>Resume Operations</span>
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 flex flex-col justify-between h-32">
+          <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Level Status</span>
+          <div class="text-3xl font-black text-on-surface">${state.user.level}</div>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 flex flex-col justify-between h-32">
+          <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Flags Captured</span>
+          <div class="text-3xl font-black text-on-surface">${state.user.flags || 0}</div>
         </div>
       </div>
     `;

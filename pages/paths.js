@@ -2,13 +2,13 @@ import { state } from '../core/state.js';
 
 export class Paths {
   constructor() {
-    this.challenges = [];
+    this.levels = [];
     this.isLoading = true;
   }
 
   async onMount() {
     const { firestore } = await import('../core/firebase.js');
-    this.challenges = await firestore.getChallenges();
+    this.levels = await firestore.getLevels();
     this.isLoading = false;
     const container = document.getElementById('paths-container');
     if (container) container.innerHTML = this.renderPaths();
@@ -28,12 +28,12 @@ export class Paths {
             <span class="text-xs font-bold uppercase tracking-widest">System Roadmap</span>
           </div>
           <div class="space-y-2">
-            <h2 class="text-5xl font-black tracking-tighter text-on-surface">Learning Paths.</h2>
-            <p class="text-on-surface-variant max-w-xl leading-relaxed font-medium">Master the art of defense and exploration through curated technical tracks designed for the next generation of security experts.</p>
+            <h2 class="text-5xl font-black tracking-tighter text-on-surface">Learning Worlds.</h2>
+            <p class="text-on-surface-variant max-w-xl leading-relaxed font-medium">Master the art of defense and exploration through curated technical worlds designed for the next generation of security experts.</p>
           </div>
         </section>
 
-        <div id="paths-container" class="space-y-6">
+        <div id="paths-container" class="space-y-12">
           ${this.renderPaths()}
         </div>
       </div>
@@ -50,44 +50,73 @@ export class Paths {
       `;
     }
 
-    if (this.challenges.length === 0) {
-      return `<p class="text-on-surface-variant italic">No challenges available yet.</p>`;
+    if (this.levels.length === 0) {
+      return `<p class="text-on-surface-variant italic">No worlds available yet.</p>`;
     }
 
-    return this.challenges.map(path => {
-      const isCompleted = state.user?.completed?.includes(path.id);
-      const isLocked = false; // For now, let's keep them unlocked if they exist
+    // Group levels by world
+    const worlds = {};
+    this.levels.forEach(level => {
+      if (!worlds[level.world]) worlds[level.world] = [];
+      worlds[level.world].push(level);
+    });
+
+    return Object.keys(worlds).map(worldId => {
+      const worldLevels = worlds[worldId];
+      const worldTitle = this.getWorldTitle(worldId);
       
       return `
-        <div class="group relative bg-surface-container-low border border-outline-variant/30 rounded-2xl p-8 transition-all hover:border-primary/50 flex flex-col md:flex-row md:items-center justify-between gap-8 overflow-hidden ${isLocked ? 'opacity-60 grayscale' : ''}">
-          <div class="flex items-center gap-6">
-            <div class="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
-              <span class="material-symbols-outlined text-4xl">${path.icon || 'terminal'}</span>
+        <div class="space-y-6">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+              <span class="font-black text-lg">${worldId}</span>
             </div>
-            <div class="space-y-1">
-              <h3 class="text-2xl font-black text-on-surface tracking-tight">${path.title}</h3>
-              <div class="flex items-center gap-3">
-                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest bg-surface-container-high px-2 py-1 rounded">${path.difficulty}</span>
-                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">${path.points} XP</span>
-              </div>
-            </div>
+            <h3 class="text-2xl font-black uppercase tracking-tighter">${worldTitle}</h3>
           </div>
 
-          <div class="flex flex-col md:items-end gap-4 min-w-[200px]">
-            ${isCompleted ? `
-              <div class="flex items-center gap-2 text-green-500 bg-green-500/10 px-4 py-2 rounded-full">
-                <span class="material-symbols-outlined text-sm">check_circle</span>
-                <span class="text-xs font-black uppercase tracking-widest">Completed</span>
-              </div>
-            ` : `
-              <a href="/challenge/${path.id}" data-link class="inline-flex items-center justify-center gap-2 bg-on-surface text-surface px-6 py-3 rounded-xl font-bold text-sm hover:bg-primary hover:text-on-primary transition-all active:scale-95">
-                <span>Enter Track</span>
-                <span class="material-symbols-outlined text-xs">login</span>
-              </a>
-            `}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${worldLevels.map(level => {
+              const isCompleted = state.user?.completed?.includes(level.id);
+              const [currentWorld, currentStep] = (state.user?.currentLevel || "0.0").split('.');
+              const isLocked = level.world > parseInt(currentWorld) || (level.world === parseInt(currentWorld) && level.step > parseInt(currentStep));
+              
+              return `
+                <div class="group relative bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 transition-all hover:border-primary/50 flex flex-col justify-between gap-6 overflow-hidden ${isLocked ? 'opacity-60 grayscale' : ''}">
+                  <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Step ${level.step}</span>
+                      ${isCompleted ? '<span class="material-symbols-outlined text-green-500 text-sm">check_circle</span>' : ''}
+                    </div>
+                    <h4 class="text-lg font-black text-on-surface tracking-tight group-hover:text-primary transition-colors">${level.title}</h4>
+                    <p class="text-xs text-on-surface-variant line-clamp-2">${level.description}</p>
+                  </div>
+
+                  <div class="flex items-center justify-between pt-4 border-t border-outline-variant/10">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">${level.points} XP</span>
+                    ${isLocked ? `
+                      <span class="material-symbols-outlined text-sm opacity-30">lock</span>
+                    ` : `
+                      <a href="/levels/${level.world}/${level.step}" data-link class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Enter Lab</a>
+                    `}
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
       `;
     }).join('');
+  }
+
+  getWorldTitle(worldId) {
+    const titles = {
+      '0': 'Basics & Fundamentals',
+      '1': 'Reconnaissance',
+      '2': 'Web Vulnerabilities',
+      '3': 'Network Attacks',
+      '4': 'Social Engineering',
+      '5': 'Post-Exploitation'
+    };
+    return titles[worldId] || `World ${worldId}`;
   }
 }

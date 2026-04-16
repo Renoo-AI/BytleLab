@@ -25,6 +25,7 @@ export const auth = {
             avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
             rank: 'Junior Pentester',
             level: 1,
+            currentLevel: "0.0",
             xp: 0,
             flags: 0,
             completed: [],

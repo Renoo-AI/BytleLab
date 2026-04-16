@@ -238,5 +238,35 @@ export const firestore = {
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
     }
+  },
+
+  getLevels: async () => {
+    const path = 'levels';
+    try {
+      const q = query(collection(db, 'levels'), orderBy('world', 'asc'), orderBy('step', 'asc'));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => doc.data());
+    } catch (error) {
+      handleFirestoreError(error, OperationType.LIST, path);
+    }
+  },
+
+  getLevel: async (levelId) => {
+    const path = `levels/${levelId}`;
+    try {
+      const levelDoc = await getDoc(doc(db, 'levels', levelId));
+      return levelDoc.exists() ? levelDoc.data() : null;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.GET, path);
+    }
+  },
+
+  saveLevel: async (levelId, data) => {
+    const path = `levels/${levelId}`;
+    try {
+      await setDoc(doc(db, 'levels', levelId), data, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+    }
   }
 };

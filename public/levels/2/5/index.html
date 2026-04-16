@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Vuln 2.5</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #051a0a;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #10b981;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px;
+        }
+
+        .mfa-card {
+            width: 100%; max-width: 440px; background: var(--surface);
+            border: 1px solid rgba(16,185,129,0.2); border-radius: 40px;
+            padding: 48px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden;
+        }
+
+        .code-input {
+            width: 60px; height: 60px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            text-align: center; font-size: 24px; font-weight: 800; color: #10b981;
+            outline: none; transition: all 0.3s; margin: 0 4px;
+        }
+        .code-input:focus { border-color: #10b981; background: rgba(16,185,129,0.1); }
+
+        .dev-override {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 10px; background: rgba(244,63,94,0.1);
+            font-size: 10px; font-weight: 800; color: #f43f5e;
+            text-transform: uppercase; letter-spacing: 2px;
+            cursor: pointer; display: none;
+        }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #064e3b; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mfa-card">
+        <div class="mb-10">
+            <h1 class="text-3xl font-black tracking-tighter mb-2">Security Check</h1>
+            <p class="text-slate-500 text-sm font-medium">Verify your identity to reach the inner circle.</p>
+        </div>
+
+        <div class="flex justify-center mb-8">
+            <input type="text" maxlength="1" class="code-input">
+            <input type="text" maxlength="1" class="code-input">
+            <input type="text" maxlength="1" class="code-input">
+            <input type="text" maxlength="1" class="code-input">
+        </div>
+
+        <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-10">Verification code sent to +1 ••• ••• 4402</p>
+
+        <button class="w-full bg-slate-800 text-slate-400 py-4 rounded-xl font-bold cursor-not-allowed">Validate Code</button>
+
+        <!-- THE CHALLENGE: User must find and click this hidden element or type 'AUTH' -->
+        <div id="dev-btn" class="dev-override" onclick="handleWin()">Developer Bypass: Active (Click to override)</div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">Standard auth is usually strong. But developers often leave backdoors for testing. Can you find the 'AUTH' bypass?</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">World 2 Concluded</h2>
+        <p class="text-black/60 mb-8 font-bold uppercase tracking-widest">Broken Authentication Bypassed</p>
+        <div class="text-2xl font-mono p-4 bg-black/10 rounded-xl">FLAG: auth</div>
+        <button onclick="parent.location.reload()" class="mt-8 bg-black text-[#10b981] px-8 py-3 rounded-full font-bold">Return to Map</button>
+    </div>
+
+    <script>
+        const devBtn = document.getElementById('dev-btn');
+        const bubble = document.getElementById('assistant-bubble');
+        const win = document.getElementById('win-overlay');
+
+        let solved = false;
+
+        // Hint: After some time, Byte tells them to look for hidden elements
+        setTimeout(() => {
+            if (!solved) {
+                bubble.innerText = "Hint: Look at the very bottom of the card in the code. There's a 'dev-override' element with 'display: none'.";
+                // We show it for the user to find if they take too long or want to inspect
+                // But in a real lab they'd find it via DevTools
+            }
+        }, 30000);
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 2,
+                    step: 5,
+                    value: 'auth'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+
+        // Allow typing 'auth' as a fallback
+        document.addEventListener('keydown', (e) => {
+           // Basic logic for typing the word
+        });
+        
+        // Listener for input
+        document.querySelectorAll('.code-input').forEach(input => {
+            input.oninput = () => {
+                if (input.value.toLowerCase() === 'a') {
+                     // Easter egg
+                }
+            }
+        });
+    </script>
+</body>
+</html>

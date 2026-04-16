@@ -17,6 +17,7 @@ import { Settings } from '../pages/settings.js';
 import { Upgrade } from '../pages/upgrade.js';
 import { Scan } from '../pages/scan.js';
 import { Admin } from '../pages/admin.js';
+import { Level } from '../pages/level.js';
 
 const routes = {
   '/': () => new Home(),
@@ -30,6 +31,7 @@ const routes = {
   '/settings': () => new Settings(),
   '/upgrade': () => new Upgrade(),
   '/scan': () => new Scan(),
+  '/levels/:world/:step': (params) => new Level(params),
   '/creator-super-banana-private123012': () => new Admin(),
 };
 

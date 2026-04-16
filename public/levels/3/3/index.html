@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Exploit 3.3</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a0505;
+            --surface: #2e0b0b;
+            --primary: #f43f5e;
+            --text: #ffffff;
+            --border: rgba(244,63,94,0.2);
+        }
+        body {
+            background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace;
+            margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; padding: 20px;
+        }
+
+        .terminal {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+            flex-grow: 1; display: flex; flex-direction: column; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            max-width: 900px; width: 100%; margin: 0 auto; position: relative;
+        }
+        .terminal-header {
+            background: rgba(255,255,255,0.05); padding: 12px 20px; display: flex; align-items: center;
+            gap: 8px; border-bottom: 1px solid var(--border);
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        .terminal-content { padding: 24px; flex-grow: 1; overflow-y: auto; font-size: 14px; line-height: 1.6; color: #fecdd3; }
+
+        .input-line { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+        .prompt { color: #f43f5e; font-weight: bold; }
+        .cli-input { background: transparent; border: none; color: white; font-family: inherit; font-size: inherit; flex-grow: 1; outline: none; }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #881337; padding: 12px 20px; border-radius: 18px;
+            font-weight: 600; font-size: 0.9rem; max-width: 240px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+            <span class="text-[10px] uppercase font-bold text-white/40 ml-4 tracking-widest">Privilege Escalator v1.0</span>
+        </div>
+        <div class="terminal-content" id="terminal-out">
+            <p class="text-white/40 italic mb-4">// Session established. Low-privilege shell active.</p>
+            <p>byte@server:~$ whoami</p>
+            <p>byte</p>
+            <p class="mt-4">Commands: 'sudo -l', 'id', 'clear', 'bash'</p>
+        </div>
+        <div class="terminal-header border-t">
+            <div class="input-line">
+                <span class="prompt" id="prompt-txt">byte@server:~$</span>
+                <input type="text" id="cli" class="cli-input" autofocus spellcheck="false" autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">You are in, but as a 'user'. To own the system, you must become 'ROOT'. Check your sudo permissions!</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Root Access</h2>
+        <p class="text-rose-200 mb-8 font-bold uppercase tracking-widest">Privilege Escalation success</p>
+        <div class="text-2xl font-mono p-4 bg-white/10 rounded-xl">FLAG: root</div>
+    </div>
+
+    <script>
+        const cli = document.getElementById('cli');
+        const out = document.getElementById('terminal-out');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+        const promptTxt = document.getElementById('prompt-txt');
+
+        let solved = false;
+
+        cli.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = cli.value.trim().toLowerCase();
+                cli.value = '';
+                processCommand(cmd);
+            }
+        });
+
+        function print(msg, color = '') {
+            const p = document.createElement('p');
+            if (color) p.style.color = color;
+            p.innerHTML = msg;
+            out.appendChild(p);
+            out.scrollTop = out.scrollHeight;
+        }
+
+        function processCommand(cmd) {
+            const currentPrompt = promptTxt.innerText;
+            print(`<span class="text-[#f43f5e]">${currentPrompt}</span> ${cmd}`);
+            
+            if (cmd === 'sudo -l') {
+                print("Matching Defaults entries for byte on server:");
+                print("    env_reset, mail_badpass, secure_path=/usr/local/sbin\\:/usr/local/bin\\:/usr/sbin\\:/usr/bin\\:/sbin\\:/bin");
+                print("<br>User byte may run the following commands on server:");
+                print("    (root) NOPASSWD: <span class='bg-rose-500 text-white px-1 font-bold'>ROOT</span>-shell-bypass");
+                bubble.innerText = "Found a SUID binary! Click the 'ROOT' tag to escalate privileges.";
+                
+                const tag = out.querySelector('.bg-rose-500');
+                tag.style.cursor = 'pointer';
+                tag.onclick = handleWin;
+            } else if (cmd === 'id') {
+                print("uid=1000(byte) gid=1000(byte) groups=1000(byte)");
+            } else if (cmd === 'bash') {
+                print("Welcome to bash 5.0. No changes detected.");
+            } else if (cmd !== '') {
+                print(`Command not found: ${cmd}`);
+            }
+        }
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            promptTxt.innerText = "root@server:~#";
+            promptTxt.style.color = "#fbbf24";
+            
+            setTimeout(() => {
+                if (window.parent) {
+                    window.parent.postMessage({
+                        type: 'LEVEL_COMPLETE',
+                        world: 3,
+                        step: 3,
+                        value: 'root'
+                    }, '*');
+                }
+                win.style.display = 'flex';
+            }, 1000);
+        };
+
+        cli.addEventListener('input', () => {
+            if (cli.value.toLowerCase() === 'root') handleWin();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Persistence 4.0</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #0d0d2b;
+            color: white;
+            font-family: 'Space Mono', monospace;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            max-width: 600px;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 32px;
+            animation: fadeIn 1s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .glow-text {
+            color: #8b5cf6;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://dropshare.42web.io/1/files/zVYAUZDpex.png" class="w-32 mx-auto mb-8" alt="Byte">
+        <h1 class="text-4xl font-black mb-6 uppercase tracking-tighter glow-text">World 4: Persistence</h1>
+        <p class="text-white/60 mb-10 leading-relaxed text-lg italic">"Winning once is luck. Staying in the shadows is skill. Now, you must ensure you never lose your grip."</p>
+        <div class="p-6 bg-white/5 border border-white/10 rounded-2xl mb-12">
+            <p class="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Stability Status</p>
+            <div class="flex items-center justify-center gap-2">
+                <span class="w-2 h-2 bg-violet-500 rounded-full animate-pulse"></span>
+                <span class="text-sm font-bold tracking-tight">Ghost Connection Active</span>
+            </div>
+        </div>
+        <p class="text-xs text-white/20 animate-pulse uppercase tracking-[0.4em]">Establishing Long-term Presence</p>
+    </div>
+</body>
+</html>

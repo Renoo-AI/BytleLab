@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Exploit 3.4</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a0505;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #f43f5e;
+            --font-mono: 'Space Mono', monospace;
+        }
+        body {
+            background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; padding: 40px;
+        }
+
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid rgba(244,63,94,0.2);
+            border-radius: 40px; padding: 60px; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .mem-input {
+            width: 100%; max-width: 500px; background: rgba(255,255,255,0.05); border: 1px solid rgba(244,63,94,0.2);
+            padding: 20px; border-radius: 12px; font-family: var(--font-mono); color: white;
+            outline: none; font-size: 1.1rem; text-align: center; margin-bottom: 40px;
+        }
+
+        .mem-grid {
+            display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; width: 100%; max-width: 600px;
+        }
+        .mem-cell {
+            height: 60px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-mono); font-size: 10px; color: rgba(255,255,255,0.2);
+            transition: all 0.2s;
+        }
+        .mem-cell.filled { background: var(--primary); color: white; border-color: transparent; box-shadow: 0 0 10px rgba(244,63,94,0.2); }
+        .mem-cell.target { border: 2px solid #fbbf24; color: #fbbf24; }
+        .mem-cell.target.corrupted { background: #fbbf24; color: black; box-shadow: 0 0 20px rgba(251,191,36,0.5); }
+
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #881337; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <h2 class="text-xs font-black text-rose-500 uppercase tracking-widest mb-4">Memory Stack Visualizer</h2>
+        <h1 class="text-3xl font-black mb-12 tracking-tight">Buffer Bounds Analysis</h1>
+
+        <input type="text" id="mem-input" class="mem-input" placeholder="Enter data to store..." maxlength="64" autofocus>
+
+        <div class="mem-grid" id="grid">
+            <!-- Cells generated here -->
+        </div>
+        
+        <div class="mt-12 flex gap-8 text-[10px] font-black uppercase tracking-widest">
+            <div class="flex items-center gap-2"><span class="w-3 h-3 bg-rose-500 rounded"></span><span>Buffer Memory (16 bytes)</span></div>
+            <div class="flex items-center gap-2"><span class="w-3 h-3 border-2 border-amber-400 rounded"></span><span>Authenticated Bit (Offset 16)</span></div>
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">Most programs have a fixed space for data. If you write more than the space allowed, you 'OVERFLOW' into the next variable.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Buffer Overflow</h2>
+        <p class="text-rose-200 mb-8 font-bold uppercase tracking-widest">Memory Corrupted. Privileges Escalated.</p>
+        <div class="text-2xl font-mono p-4 bg-white/10 rounded-xl">FLAG: overflow</div>
+    </div>
+
+    <script>
+        const input = document.getElementById('mem-input');
+        const grid = document.getElementById('grid');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+        const cells = [];
+
+        // Generate 32 cells
+        for (let i = 0; i < 32; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'mem-cell';
+            if (i >= 16 && i < 20) cell.classList.add('target');
+            cell.innerText = '00';
+            grid.appendChild(cell);
+            cells.push(cell);
+        }
+
+        input.oninput = () => {
+            const val = input.value;
+            
+            cells.forEach((c, idx) => {
+                c.classList.remove('filled', 'corrupted');
+                c.innerText = '00';
+                
+                if (idx < val.length) {
+                    c.classList.add('filled');
+                    c.innerText = val[idx].toUpperCase();
+                    if (idx >= 16 && idx < 20) {
+                        c.classList.add('corrupted');
+                    }
+                }
+            });
+
+            // If we hit the 16th byte (offset 16)
+            if (val.length > 16) {
+                bubble.innerText = "You've crossed the boundary! The 'OVERFLOW' is happening. Fill it more!";
+            }
+            
+            if (val.length >= 20) {
+                handleWin();
+            }
+        };
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 3,
+                    step: 4,
+                    value: 'overflow'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

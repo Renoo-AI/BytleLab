@@ -257,6 +257,61 @@ export class Admin {
           for (const [id, flag] of Object.entries(flags)) {
             await firestore.saveFlag(id, flag);
           }
+
+          const allLevels = [
+            // World 0: Basics
+            { id: '0.0', world: 0, step: 0, title: 'Entry', description: 'Welcome to the system. No validation required.', type: 'entry', points: 0 },
+            { id: '0.1', world: 0, step: 1, title: 'Reveal hidden data', description: 'Find the hidden data in the interface.', type: 'challenge', points: 100 },
+            { id: '0.2', world: 0, step: 2, title: 'Modify value', description: 'Change a value to bypass a check.', type: 'challenge', points: 100 },
+            { id: '0.3', world: 0, step: 3, title: 'Remove restriction', description: 'Disable a restriction preventing access.', type: 'challenge', points: 100 },
+            { id: '0.4', world: 0, step: 4, title: 'Change identity', description: 'Spoof your identity to gain privileges.', type: 'challenge', points: 100 },
+            { id: '0.5', world: 0, step: 5, title: 'Control interface', description: 'Take full control of the system interface.', type: 'challenge', points: 100 },
+            
+            // World 1: Reconnaissance
+            { id: '1.0', world: 1, step: 0, title: 'Passive Recon', description: 'Gather information without direct interaction.', type: 'entry', points: 0 },
+            { id: '1.1', world: 1, step: 1, title: 'Port Scanning', description: 'Identify open ports on the target system.', type: 'challenge', points: 150 },
+            { id: '1.2', world: 1, step: 2, title: 'Service Discovery', description: 'Determine the services running on open ports.', type: 'challenge', points: 150 },
+            { id: '1.3', world: 1, step: 3, title: 'OS Fingerprinting', description: 'Identify the operating system of the target.', type: 'challenge', points: 150 },
+            { id: '1.4', world: 1, step: 4, title: 'Directory Brute-forcing', description: 'Find hidden directories on the web server.', type: 'challenge', points: 150 },
+            { id: '1.5', world: 1, step: 5, title: 'Subdomain Enumeration', description: 'Discover subdomains associated with the target.', type: 'challenge', points: 150 },
+
+            // World 2: Vulnerabilities
+            { id: '2.0', world: 2, step: 0, title: 'Web Weaknesses', description: 'Analyze system reports for deep-seated security flaws.', type: 'entry', points: 0 },
+            { id: '2.1', world: 2, step: 1, title: 'SQL Injection', description: 'Bypass authentication using database manipulation.', type: 'challenge', points: 200 },
+            { id: '2.2', world: 2, step: 2, title: 'Cross-Site Scripting', description: 'Inject malicious scripts into the interface.', type: 'challenge', points: 200 },
+            { id: '2.3', world: 2, step: 3, title: 'Cookie Tampering', description: 'Manipulate session identifiers to elevate privileges.', type: 'challenge', points: 200 },
+            { id: '2.4', world: 2, step: 4, title: 'Path Traversal', description: 'Escape the web root to access forbidden files.', type: 'challenge', points: 200 },
+            { id: '2.5', world: 2, step: 5, title: 'Authentication Bypass', description: 'Circumvent security checks to gain system access.', type: 'challenge', points: 200 },
+
+            // World 3: Exploitation
+            { id: '3.0', world: 3, step: 0, title: 'Weaponization', description: 'Prepare for active system exploitation.', type: 'entry', points: 0 },
+            { id: '3.1', world: 3, step: 1, title: 'Command Injection', description: 'Execute OS commands through web inputs.', type: 'challenge', points: 250 },
+            { id: '3.2', world: 3, step: 2, title: 'Remote Code Execution', description: 'Upload and execute malicious server-side scripts.', type: 'challenge', points: 250 },
+            { id: '3.3', world: 3, step: 3, title: 'Privilege Escalation', description: 'Gain root or administrator level permissions.', type: 'challenge', points: 250 },
+            { id: '3.4', world: 3, step: 4, title: 'Buffer Overflow', description: 'Corrupt memory to bypass security boundaries.', type: 'challenge', points: 250 },
+            { id: '3.5', world: 3, step: 5, title: 'Social Payloads', description: 'Craft deceptive payloads for target interaction.', type: 'challenge', points: 250 },
+
+            // World 4: Persistence
+            { id: '4.0', world: 4, step: 0, title: 'Long-term Access', description: 'Ensure your presence remains undetected and permanent.', type: 'entry', points: 0 },
+            { id: '4.1', world: 4, step: 1, title: 'Web Shell Installation', description: 'Deploy a hidden management interface.', type: 'challenge', points: 300 },
+            { id: '4.2', world: 4, step: 2, title: 'Cron Persistence', description: 'Schedule recurring tasks to maintain system control.', type: 'challenge', points: 300 },
+            { id: '4.3', world: 4, step: 3, title: 'SSH Key Injection', description: 'Authorized your own keys for permanent access.', type: 'challenge', points: 300 },
+            { id: '4.4', world: 4, step: 4, title: 'Shadow Users', description: 'Provision hidden administrative accounts.', type: 'challenge', points: 300 },
+            { id: '4.5', world: 4, step: 5, title: 'Token Hijacking', description: 'Harvest persistent session tokens.', type: 'challenge', points: 300 },
+
+            // World 5: Infiltration
+            { id: '5.0', world: 5, step: 0, title: 'Deep Infiltration', description: 'Penetrate the most secure segments of the network.', type: 'entry', points: 0 },
+            { id: '5.1', world: 5, step: 1, title: 'Vault Exfiltration', description: 'Locate and steal high-value data from the core.', type: 'challenge', points: 400 },
+            { id: '5.2', world: 5, step: 2, title: 'Lateral Movement', description: 'Pivot from public servers to internal networks.', type: 'challenge', points: 400 },
+            { id: '5.3', world: 5, step: 3, title: 'Zero-Day Attack', description: 'Use unpatched vulnerabilities for total control.', type: 'challenge', points: 400 },
+            { id: '5.4', world: 5, step: 4, title: 'Network Takeover', description: 'Engage master control over all internal segments.', type: 'challenge', points: 400 },
+            { id: '5.5', world: 5, step: 5, title: 'Objective: Byte', description: 'Meet the core identity at the heart of the system.', type: 'challenge', points: 500 }
+          ];
+
+          for (const level of allLevels) {
+            await firestore.saveLevel(level.id, level);
+          }
+
           alert('Database seeded successfully!');
         } catch (error) {
           alert('Seed failed: ' + error.message);

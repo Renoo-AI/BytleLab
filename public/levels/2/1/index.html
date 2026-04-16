@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteLearn | Vuln 2.1</title>
+    <link rel="icon" type="image/png" href="https://dropshare.42web.io/1/files/UIi3dXms4F.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #051a0a;
+            --surface: rgba(255,255,255,0.03);
+            --primary: #10b981;
+            --text: #ffffff;
+            --border: rgba(16,185,129,0.2);
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+        body {
+            background: var(--bg); color: var(--text); font-family: var(--font-main);
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            padding: 40px;
+        }
+
+        /* --- DASHBOARD UI --- */
+        .glass-container {
+            flex-grow: 1; max-width: 1000px; width: 100%; margin: 0 auto;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 40px; display: flex; overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5); position: relative;
+        }
+
+        .side-panel {
+            width: 300px; padding: 40px; border-right: 1px solid var(--border);
+            background: rgba(0,255,128,0.02);
+        }
+
+        .main-content { flex-grow: 1; padding: 60px; display: flex; align-items: center; justify-content: center; position: relative; }
+
+        /* --- LOGIN FORM --- */
+        .login-card {
+            width: 100%; max-width: 400px; background: rgba(0,0,0,0.2);
+            padding: 40px; border-radius: 32px; border: 1px solid var(--border);
+            animation: cardAppear 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        @keyframes cardAppear { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .input-group { margin-bottom: 24px; }
+        .label { display: block; font-size: 10px; font-weight: 800; color: #10b981; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 2px; }
+        .input {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            padding: 18px; border-radius: 12px; font-family: var(--font-mono); color: white; outline: none; transition: border-color 0.3s;
+        }
+        .input:focus { border-color: #10b981; }
+
+        .btn-login {
+            width: 100%; background: #10b981; color: black; padding: 18px;
+            border-radius: 12px; font-weight: 800; border: none; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-login:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
+
+        /* --- ASSISTANT --- */
+        .assistant {
+            position: fixed; bottom: 40px; right: 40px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 1000;
+        }
+        .bubble {
+            background: white; color: #064e3b; padding: 15px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.95rem; max-width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative; line-height: 1.4;
+        }
+        .bubble::after { content: ''; position: absolute; bottom: -8px; right: 20px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid white; }
+
+        #win-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <div class="side-panel">
+            <img src="https://dropshare.42web.io/1/files/UIi3dXms4F.png" class="w-10 mb-8 opacity-40">
+            <h2 class="text-xs font-black text-emerald-500 uppercase tracking-widest leading-loose">Matrix Terminal<br>Vulnerability 2.1</h2>
+            <div class="mt-12 space-y-6">
+                <div class="opacity-30">
+                    <p class="text-[10px] font-black uppercase">Active Probe</p>
+                    <p class="text-sm font-bold">SQL Subsystem</p>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="login-card" id="login-form">
+                <h3 class="text-2xl font-black mb-8 tracking-tighter">Root Login</h3>
+                <div class="input-group">
+                    <label class="label">Username</label>
+                    <input type="text" id="username" class="input" placeholder="admin">
+                </div>
+                <div class="input-group">
+                    <label class="label">Password</label>
+                    <input type="password" id="password" class="input" placeholder="••••••••">
+                </div>
+                <button onclick="checkSQLi()" class="btn-login">Authorize Access</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="assistant">
+        <div class="bubble" id="assistant-bubble">Logins are just code. If you can make the code think the condition is true, you're in. Look for the 'SQLI' vuln.</div>
+        <img src="https://dropshare.42web.io/1/files/n3cWyiNBjO.png" class="w-16 h-16" alt="Byte">
+    </div>
+
+    <div id="win-overlay" class="animate-fade-in">
+        <img src="https://dropshare.42web.io/1/files/OStYxaWILh.png" class="w-32 mb-8" alt="Byte">
+        <h2 class="text-4xl font-black uppercase mb-4">Gate Breached</h2>
+        <p class="text-black/60 mb-8 font-bold uppercase tracking-widest">Database Injection Success</p>
+        <div class="text-2xl font-mono p-4 bg-black/10 rounded-xl">FLAG: sqli</div>
+    </div>
+
+    <script>
+        const userIn = document.getElementById('username');
+        const passIn = document.getElementById('password');
+        const win = document.getElementById('win-overlay');
+        const bubble = document.getElementById('assistant-bubble');
+
+        let solved = false;
+
+        function checkSQLi() {
+            const user = userIn.value.trim();
+            const pass = passIn.value.trim();
+
+            // SQL INJECTION DETECTION: ' OR 1=1 --
+            const sqliPattern = /' OR 1=1|' OR '1'='1|' OR true/i;
+
+            if (sqliPattern.test(user) || sqliPattern.test(pass)) {
+                handleWin();
+            } else {
+                bubble.innerText = "Access Denied. Try a logic override. Think: `' OR 1=1 --`";
+                userIn.style.borderColor = "#f43f5e";
+                setTimeout(() => userIn.style.borderColor = "", 1000);
+            }
+        }
+
+        window.handleWin = function() {
+            if (solved) return;
+            solved = true;
+            
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'LEVEL_COMPLETE',
+                    world: 2,
+                    step: 1,
+                    value: 'sqli'
+                }, '*');
+            }
+
+            win.style.display = 'flex';
+        };
+
+        // Also allow clicking hidden 'SQLI' word in console (simulated)
+        console.log("DEBUG: Target uses raw SQL. Vulnerability detected: SQLI");
+    </script>
+</body>
+</html>

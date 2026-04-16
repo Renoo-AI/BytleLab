@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 0.0 - Entry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; }
+        .glitch { animation: glitch 1s linear infinite; }
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px, 0) skew(0deg); }
+            4%, 60% { transform: translate(-2px, 0) skew(0deg); }
+            62% { transform: translate(0, 0) skew(5deg); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen overflow-hidden">
+    <div class="text-center space-y-4">
+        <h1 class="text-4xl font-black uppercase tracking-widest glitch">System Online</h1>
+        <p class="opacity-50">Connection established. Awaiting user initialization.</p>
+    </div>
+</body>
+</html>
