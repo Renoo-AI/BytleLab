@@ -9,98 +9,92 @@
     <link rel="stylesheet" href="/core/design.css">
 </head>
 <body class="bg-surface text-on-surface font-sans selection:bg-primary/20 overflow-x-hidden">
-    <div id="app-root"></div>
+    <div id="pc-shell" class="hidden lg:flex flex-col min-h-screen">
+        <header id="app-top-bar" class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-3xl font-bold">shield_with_heart</span>
+                <span class="font-black tracking-tighter text-2xl app-name">ByteLearn</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="user-stats text-xs font-black uppercase tracking-widest text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-lg"></div>
+                <div class="user-avatar-container w-10 h-10 rounded-full bg-surface-container overflow-hidden border-2 border-primary/20"></div>
+            </div>
+        </header>
+        <main id="main-content-pc" class="flex-grow pl-32"></main>
+        <nav id="pc-nav" class="fixed left-8 top-1/2 -translate-y-1/2 z-40 bg-surface/90 backdrop-blur-xl border border-outline-variant p-3 rounded-2xl flex flex-col gap-6 shadow-2xl shadow-primary/10">
+            <a href="/" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                <span class="material-symbols-outlined text-2xl">dashboard</span>
+                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Home</span>
+            </a>
+            <a href="/paths" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                <span class="material-symbols-outlined text-2xl">route</span>
+                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Paths</span>
+            </a>
+            <a href="/bolt" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                <span class="material-symbols-outlined text-2xl">bolt</span>
+                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Bolt</span>
+            </a>
+            <div class="h-[1px] bg-outline-variant mx-2"></div>
+            <a href="/profile" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                <span class="material-symbols-outlined text-2xl">person</span>
+                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Profile</span>
+            </a>
+            <a href="/upgrade" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
+                <span class="material-symbols-outlined text-2xl">workspace_premium</span>
+                <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Premium</span>
+            </a>
+        </nav>
+    </div>
+
+    <div id="phone-shell" class="lg:hidden flex flex-col min-h-screen">
+        <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary font-bold">shield_with_heart</span>
+                <span class="font-black tracking-tight text-lg app-name">ByteLearn</span>
+            </div>
+            <div class="user-stats text-[10px] font-black uppercase tracking-widest text-on-surface-variant bg-surface-container px-2 py-1 rounded-md"></div>
+        </header>
+        <main id="main-content-phone" class="flex-grow pb-24"></main>
+        <nav id="phone-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-lg border-t border-outline-variant px-6 py-3 flex items-center justify-around">
+            <a href="/" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">home</span>
+                <span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
+            </a>
+            <div class="relative -top-6">
+                <button onclick="const sid = prompt('Enter Session ID:'); if(sid) window.app.approveSession(sid)" class="w-14 h-14 rounded-full bg-primary text-on-primary shadow-lg shadow-primary/40 flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
+                </button>
+            </div>
+            <a href="/profile" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">person</span>
+                <span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+            </a>
+            <a href="/upgrade" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">workspace_premium</span>
+                <span class="text-[10px] font-bold uppercase tracking-tighter">Premium</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Unified Container for Router -->
+    <div id="main-content" class="hidden"></div>
 
     <script type="module">
-    const path = window.location.pathname;
-    let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
-    
-    // Explicit override via URL
-    if (path.startsWith('/pc')) isMobile = false;
-    if (path.startsWith('/phone')) isMobile = true;
-    
-    // Persist platform choice to window for use in the app
-    window.isMobile = isMobile;
-    
-    const isPC = !isMobile;
-    const root = document.getElementById('app-root');
+        window.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
         
-        if (isPC) {
-            console.log('Initializing PC Interface...');
-            root.innerHTML = `
-                <div id="pc-app" class="min-h-screen flex flex-col">
-                    <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-8 py-4 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary text-3xl font-bold">shield_with_heart</span>
-                            <span class="font-black tracking-tighter text-2xl app-name">ByteLearn</span>
-                        </div>
-                        <div class="flex items-center gap-6">
-                            <div id="user-stats" class="text-xs font-black uppercase tracking-widest text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-lg"></div>
-                            <div id="user-avatar-container" class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border-2 border-primary/20"></div>
-                        </div>
-                    </header>
-                    <main id="main-content" class="flex-grow pl-32"></main>
-                    <nav class="fixed left-8 top-1/2 -translate-y-1/2 z-40 bg-surface/90 backdrop-blur-xl border border-outline-variant p-3 rounded-2xl flex flex-col gap-6 shadow-2xl shadow-primary/10">
-                        <a href="/" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                            <span class="material-symbols-outlined text-2xl">dashboard</span>
-                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Home</span>
-                        </a>
-                        <a href="/paths" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                            <span class="material-symbols-outlined text-2xl">route</span>
-                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Paths</span>
-                        </a>
-                        <a href="/bolt" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                            <span class="material-symbols-outlined text-2xl">bolt</span>
-                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Bolt</span>
-                        </a>
-                        <div class="h-[1px] bg-outline-variant mx-2"></div>
-                        <a href="/profile" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                            <span class="material-symbols-outlined text-2xl">person</span>
-                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Profile</span>
-                        </a>
-                        <a href="/upgrade" data-link class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all group relative">
-                            <span class="material-symbols-outlined text-2xl">workspace_premium</span>
-                            <span class="absolute left-16 bg-on-surface text-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none uppercase tracking-widest">Premium</span>
-                        </a>
-                    </nav>
-                </div>
-            `;
-            import('./pc/app.js').catch(err => console.error('Failed to load PC app:', err));
-        } else {
-            console.log('Initializing Mobile Interface...');
-            root.innerHTML = `
-                <div id="phone-app" class="min-h-screen flex flex-col">
-                    <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-4 py-3 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary font-bold">shield_with_heart</span>
-                            <span class="font-black tracking-tight text-lg app-name">ByteLearn</span>
-                        </div>
-                        <div id="user-stats" class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant bg-surface-container px-2 py-1 rounded-md"></div>
-                    </header>
-                    <main id="main-content" class="flex-grow pb-24"></main>
-                    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-lg border-t border-outline-variant px-6 py-3 flex items-center justify-around">
-                        <a href="/" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">home</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
-                        </a>
-                        <div class="relative -top-6">
-                            <button onclick="const sid = prompt('Enter Session ID:'); if(sid) window.app.approveSession(sid)" class="w-14 h-14 rounded-full bg-primary text-on-primary shadow-lg shadow-primary/40 flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
-                                <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
-                            </button>
-                        </div>
-                        <a href="/profile" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">person</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
-                        </a>
-                        <a href="/upgrade" data-link class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">workspace_premium</span>
-                            <span class="text-[10px] font-bold uppercase tracking-tighter">Premium</span>
-                        </a>
-                    </nav>
-                </div>
-            `;
-            import('./phone/app.js').catch(err => console.error('Failed to load Phone app:', err));
-        }
+        import './core/app.js';
+        
+        // Sync the multiple main-content areas for the router
+        const pcMain = document.getElementById('main-content-pc');
+        const phoneMain = document.getElementById('main-content-phone');
+        const routerContainer = document.getElementById('main-content');
+        
+        const observer = new MutationObserver(() => {
+            pcMain.innerHTML = routerContainer.innerHTML;
+            phoneMain.innerHTML = routerContainer.innerHTML;
+        });
+        
+        observer.observe(routerContainer, { childList: true, subtree: true });
     </script>
 </body>
 </html>

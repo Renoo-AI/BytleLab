@@ -1,15 +1,18 @@
-import { state, updateState, resetState } from '../core/state.js';
-import { storage } from '../core/storage.js';
-import { Router } from '../core/router.js';
-import { auth } from '../core/auth.js';
-import { firestore } from '../core/firebase.js';
+import { state, updateState, resetState } from './state.js';
+import { storage } from './storage.js';
+import { Router } from './router.js';
+import { auth } from './auth.js';
+import { firestore } from './firebase.js';
 
-// Pages (Mobile Specific or Shared)
+// Pages
 import { Home } from '../pages/home.js';
+import { Paths } from '../pages/paths.js';
 import { Profile } from '../pages/profile.js';
+import { BoltPage } from '../pages/bolt-page.js';
+import { Splash } from '../pages/splash.js';
+import { QRLogin } from '../pages/qr-login.js';
 import { Login } from '../pages/login.js';
 import { Signup } from '../pages/signup.js';
-import { Splash } from '../pages/splash.js';
 import { Challenge } from '../pages/challenge.js';
 import { Practice } from '../pages/practice.js';
 import { Onboarding } from '../pages/onboarding.js';
@@ -21,10 +24,13 @@ import { Level } from '../pages/level.js';
 
 const routes = {
   '/': () => new Home(),
+  '/paths': () => new Paths(),
   '/profile': () => new Profile(),
+  '/bolt': () => new BoltPage(),
+  '/splash': () => new Splash(),
+  '/qr-login': () => new QRLogin(),
   '/login': () => new Login(),
   '/signup': () => new Signup(),
-  '/splash': () => new Splash(),
   '/challenge/:id': (params) => new Challenge(params),
   '/practice': () => new Practice(),
   '/onboarding': () => new Onboarding(),
@@ -49,7 +55,7 @@ const init = () => {
 
   // 4. Initialize Auth
   auth.init(() => {
-    // No need for manual redirect here, router handles it via isAuthReady
+    // Auth initialized
   });
 
   // 5. Initialize Settings Sync
@@ -70,7 +76,7 @@ const init = () => {
     },
     logout: async () => {
       await auth.logout();
-      router.navigate('/login');
+      router.navigate('/qr-login');
     },
     bypassLogin: () => {
       const mockUser = {
@@ -91,14 +97,14 @@ const init = () => {
     approveSession: async (sessionId) => {
       const success = await auth.approvePCLogin(sessionId);
       if (success) {
-        alert('PC Authorization Successful!');
+        alert('Authorization Successful!');
       } else {
-        alert('Authorization failed. Please check the session ID.');
+        alert('Authorization failed.');
       }
     }
   });
 
-  // 6. UI Sync
+  // 7. UI Sync
   document.addEventListener('stateChange', (e) => {
     storage.save(state);
     updateGlobalUI();
@@ -111,6 +117,17 @@ const init = () => {
     updateGlobalUI();
   });
 
+  // 8. Challenge Communication
+  window.addEventListener('message', (e) => {
+    if (e.origin !== window.location.origin) return;
+    const { type, payload } = e.data;
+    if (type === 'challenge_complete') {
+      import('./engine.js').then(({ engine }) => {
+        engine.validateFlag(payload.id, payload.flag);
+      });
+    }
+  });
+
   updateGlobalUI();
 };
 
@@ -121,23 +138,36 @@ if (document.readyState === 'loading') {
 }
 
 function updateGlobalUI() {
-  const statsContainer = document.getElementById('user-stats');
-  const bottomNav = document.querySelector('nav');
-  const topBar = document.querySelector('header');
+  const statsContainers = document.querySelectorAll('.user-stats');
+  const avatarContainers = document.querySelectorAll('.user-avatar-container');
   const appNameElements = document.querySelectorAll('.app-name');
+  
+  const bottomNav = document.getElementById('phone-nav');
+  const sideNav = document.getElementById('pc-nav');
+  const topBar = document.getElementById('app-top-bar');
 
   // Update App Name
   appNameElements.forEach(el => {
     el.textContent = state.appName;
   });
 
-  const hiddenOn = ['/splash', '/login', '/signup', '/onboarding', '/scan', '/creator-super-banana-private123012'];
+  // Hide/Show Shell UI based on route
+  const hiddenOn = ['/splash', '/login', '/signup', '/qr-login', '/onboarding', '/scan', '/creator-super-banana-private123012'];
   const isHidden = hiddenOn.includes(window.location.pathname);
   
   if (bottomNav) bottomNav.style.display = isHidden ? 'none' : 'flex';
+  if (sideNav) sideNav.style.display = isHidden ? 'none' : 'flex';
   if (topBar) topBar.style.display = isHidden ? 'none' : 'flex';
 
-  if (statsContainer) {
-    statsContainer.textContent = state.isAuthenticated ? `${state.user.level} LVL • ${state.user.xp} XP` : '';
-  }
+  avatarContainers.forEach(container => {
+    if (state.user) {
+      container.innerHTML = `<img src="${state.user.avatar}" alt="User Profile" class="w-full h-full object-cover">`;
+    } else {
+      container.innerHTML = '';
+    }
+  });
+
+  statsContainers.forEach(container => {
+    container.textContent = state.isAuthenticated ? `${state.user.level} LVL • ${state.user.xp} XP` : '';
+  });
 }
